@@ -1,0 +1,913 @@
+==================================================
+Câu hỏi: Khóa ngoại có bắt buộc phải là khóa chính của bảng khác không?
+Vượt threshold (0.5): Có
+--- PROMPT SẼ GỬI CHO LLM ---
+Dựa trên các trích xuất tài liệu sau:
+
+--- Nguồn: Chuong 2_Relational Data Model.md ---
+**Khóa chính**
+- Xét quan hệ
+- **KHACHHANG** (MAKH, HOTEN, DCHI, SODT, NGSINH, DOANHSO, NGDK) - Có 2 khóa
+- MAKH
+- HOTEN, SODT
+- - Khi cài đặt quan hệ thành bảng (table)
+- Chọn 1 khóa làm cơ sở để nhận biết các bộ  Khóa có ít thuộc tính hơn
+- Khóa được chọn gọi là khóa chính (PK - primary key)  Các thuộc tính khóa chính phải có giá trị khác null  Các thuộc tính khóa chính thường được gạch dưới
+- **KHACHHANG** (MAKH, HOTEN, DCHI, SODT, NGSINH, DOANHSO, NGDK)
+- Cơ sở dữ liệu 19
+
+--- Nguồn: Chuong 2_Relational Data Model.md ---
+**Khóa ngoại (tt)**
+- Nhận xét
+- Trong một lược đồ quan hệ, một thuộc tính vừa có thể tham gia vào khóa chính, vừa tham gia vào khóa ngoại
+- Khóa ngoại có thể tham chiếu đến khóa chính trên cùng 1 lược đồ quan hệ
+- Có thểcó nhiều khóa ngoại tham chiếu đến cùng một khóa chính
+- Ràng buộc tham chiếu = Ràng buộc khóa ngoại
+Cơ sở dữ liệu 22 
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Index Structures** - Introduction
+As with our example leaf, it is not necessarily the case that all slots for keys and pointers are occupied. However, with n = 3, at least the first key and the first two pointers must be present in an interior node. □
+
+Exam ple 14.12: Figure 14.13 shows an entire three-level B-tree, with _n_ = 3, as in Example 14.11. We have assumed that the data file consists of records whose keys are all the primes from 2 to 47. Notice that at the leaves, each of these keys appears once, in order. All leaf blocks have two or three key-pointer pairs, plus a pointer to the next leaf in sequence. The keys are in sorted order as we look across the leaves from left to right.
+
+The root has only two pointers, the minimum possible number, although it could have up to four. The one key at the root separates those keys reachable via the first pointer from those reachable via the second. That is, keys up to 12 could be found in the first subtree of the root, and keys 13 and up are in the second subtree.
+
+_14.2. B-TREES_
+
+
+If we look at the first child of the root, with key 7, we again find two pointers, one to keys less than 7 and the other to keys 7 and above. Note that the second pointer in this node gets us only to keys 7 and 11, not to _all_ keys > 7, such as 13.
+
+Finally, the second child of the root has all four pointer slots in use. The first gets us to some of the keys less than 23, namely 13, 17, and 19. The second pointer gets us to all keys _K_ such that 23  43 (in this case, to all of them). □
+
+##### **14.2.2 Applications of B-trees**
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Index Structures** - Introduction
+3. The first fri/2"| keys stay with _N ,_ while the last _\n/2\_ keys move to _M ._ Note that there is always one key in the middle left over; it goes with neither _N_ nor _M._ The leftover key _K_ indicates the smallest key reachable via the first of M ’s children. Although this key doesn’t appear in _N_ or _M ,_ it is associated with _M ,_ in the sense that it represents the smallest key reachable via _M ._ Therefore _K_ will be inserted into the parent of _N_ and _M_ to divide searches between those two nodes.
+
+Exam ple 14.16: Let us insert key 40 into the B-tree of Fig. 14.13. We find the proper leaf for the insertion by the lookup procedure of Section 14.2.3. As found in Example 14.14, the insertion goes into the fifth leaf. Since this leaf now has four key-pointer pairs — 31, 37, 40, and 41 — we need to split the leaf. Our first step is to create a new node and move the highest two keys, 40 and 41, along with their pointers, to that node. Figure 14.15 shows this split.
+
+Notice that although we now show the nodes on four ranks to save space, there are still only three levels to the tree. The seven leaves are linked by their last pointers, which still form a chain from left to right.
+
+We must now insert a pointer to the new leaf (the one with keys 40 and 41) into the node above it (the node with keys 23, 31, and 43). We must also associate with this pointer the key 40, which is the least key reachable through the new leaf. Unfortunately, the parent of the split node is already full; it has no room for another key or pointer. Thus, it too must be split.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Index Structures** - Introduction
+Exam ple 14.1: Fig 14.2 shows a sequential file on the right. We imagine that keys are integers; we show only the key field, and we make the atypical assumption that there is room for only two records in one block. For instance, the first block of the file holds the records with keys 10 and 20. In this and several other examples, we use integers that are sequential multiples of 10 as keys, although there is surely no requirement that keys form an arithmetic sequence. □
+
+Although in Example 14.1 we supposed that records were packed as tightly as possible into blocks, it is common to leave some space initially in each block to accomodate new tuples that may be added to a relation. Alternatively, we may accomodate new tuples with overflow blocks, as we suggested in Section 13.8.1.
+
+##### **14.1.2 Dense Indexes**
+
+If records Eire sorted, we can build on them a _dense index,_ which is a sequence of blocks holding only the keys of the records and pointers to the records them­ selves; the pointers are addresses in the sense discussed in Section 13.6. The index blocks of the dense index maintain these keys in the same sorted order as in the file itself. Since keys and pointers presumably take much less space than complete records, we expect to use many fewer blocks for the index than for the file itself. The index is especially advantageous when it, but not the data file, can fit in main memory. Then, by using the index, we can find any record given its search key, with only one disk I/O per lookup.
+
+Exam ple 14.2: Figure 14.2 suggests a dense index on a sorted file. The first index block contains pointers to the first four records (an atypically small number of pointers for one block), the second block has pointers to the next four, and so on. □
+
+Chỉ thị cho LLM: Hãy trả lời câu hỏi sau dựa hoàn toàn vào tài liệu trên (nếu tài liệu không đủ thông tin, hãy nói rõ). Câu hỏi: Khóa ngoại có bắt buộc phải là khóa chính của bảng khác không?
+==================================================
+
+==================================================
+Câu hỏi: So sánh UNION và UNION ALL trong SQL
+Vượt threshold (0.5): Có
+--- PROMPT SẼ GỬI CHO LLM ---
+Dựa trên các trích xuất tài liệu sau:
+
+--- Nguồn: Chuong 4_Ngon ngu SQL.md ---
+**Phép toán tập hợp trong SQL**
+- SQL có cài đặt các phép toán
+- Hội (UNION)
+- Giao (INTERSECT)
+- Trừ(EXCEPT)
+- Kết quả trả về là tập hợp
+- Loại bỏcác bộ trùng nhau
+- để giữ lại các bộ trùng nhau
+- UNION ALL
+- INTERSECT ALL
+- EXCEPT ALL
+- Cơ sở dữ liệu 53
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 6 The Database Language SQL** - Introduction
+- ♦ _Set Operations on Relations:_ We can take the union, intersection, or difference of relations by connecting the relations, or connecting queries defining the relations, with the keywords UNION, INTERSECT, and EXCEPT, respectively.
+
+- ♦ _Join Expressions:_ SQL has operators such as NATURAL JOIN that may be applied to relations, either as queries by themselves or to define relations in a FROM clause.
+
+_CHAPTER 6. THE DATABASE LANGUAGE SQL_
+
+
+- ♦ _Null Values:_ SQL provides a special value NULL that appears in compo­ nents of tuples for which no concrete value is available. The arithmetic and logic of NULL is unusual. Comparison of any value to NULL, even another NULL, gives the truth value UNKNOWN. That truth value, in turn, behaves in boolean-valued expressions as if it were halfway between TRUE and FALSE.
+
+- ♦ _Outerjoins:_ SQL provides an OUTER JOIN operator that joins relations but also includes in the result dangling tuples from one or both relations; the dangling tuples are padded with NULL’s in the resulting relation.
+
+- ♦ _The Bag Model of Relations:_ SQL actually regards relations as bags of tuples, not sets of tuples. We can force elimination of duplicate tuples with the keyword DISTINCT, while keyword ALL allows the result to be a bag in certain circumstances where bags are not the default.
+
+- ♦ _Aggregations:_ The values appearing in one column of a relation can be summarized (aggregated) by using one of the keywords SUM, AVG (average value), MIN, MAX, or COUNT. Tuples can be partitioned prior to aggregation with the keywords GROUP BY. Certain groups can be eliminated with a clause introduced by the keyword HAVING.
+
+- ♦ _Modification Statements:_ SQL allows us to change the tuples in a relation. We may INSERT (add new tuples), DELETE (remove tuples), or UPDATE (change some of the existing tuples), by writing SQL statements using one of these three keywords.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Advanced Topics in Relational Databases** - Introduction
+Yet there are many SQL operations that require either an equality test or both an equality and a “less than” test. For instance, we cannot eliminate duplicates if we can’t tell whether two tuples are equal. We cannot group by an attribute whose type is a UDT unless there is an equality test for that UDT. We cannot use an ORDER BY clause or a comparison like < in a WHERE clause unless we can compare two elements.
+
+###### 462 _CHAPTER 10. ADVANCED TOPICS IN RELATIONAL DATABASES_
+
+To specify an ordering or comparison, SQL allows us to issue a CREATE ORDERING statement for any UDT. There are a number of forms this statement may take, and we shall only consider the two simplest options:
+
+1. The statement
+
+###### CREATE ORDERING FOR T EQUALS ONLY BY STATE;
+
+says that two members of UDT _T_ are considered equal if all of their corresponding components are equal. There is no < defined on objects of UDT _T._
+
+2. The following statement
+
+###### CREATE ORDERING FOR T ORDERING FULL BY RELATIVE WITH _F;_
+
+says that any of the six comparisons (, >=, =, and ) may be performed on objects of UDT T. To tell how objects _x\_ and _x2_ compare, we apply the function _F_ to these objects. This function must be writ­ ten so that _F (x i,x 2)_  0 means that _x\ > x2._ If we replace “ORDERING FULL” with “EQUALS ONLY,” then _F (x i,x 2)_ = 0 indicates that _x\ — x2,_ while any other value of _F (x i,x 2)_ means that _xi ^ x2._ Comparison by < is impossible in this case.
+
+E xam ple 10.25: Let us consider a possible ordering on the UDT StarType from Example 10.14. If we want only an equality on objects of this UDT, we could declare:
+
+###### CREATE ORDERING FOR StarType EQUALS ONLY BY STATE;
+
+That statement says that two objects of StarType are equal if and only if their names are equal as character strings, and their addresses are equal as objects of UDT AddressType.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 6 The Database Language SQL** - Introduction
+If we want to be certain that we do not count duplicate values more than once, we can use the keyword DISTINCT before the aggregated attribute, as:
+
+SELECT COUNT(DISTINCT starName) FROM S tarsln ;
+
+Now, each star is counted once, no matter in how many movies they appeared. □
+
+##### **6.4.5 Grouping**
+
+To group tuples, we use a GROUP BY clause, following the WHERE clause. The keywords GROUP BY are followed by a list of _grouping_ attributes. In the simplest situation, there is only one relation reference in the FROM clause, and this relation has its tuples grouped according to their values in the grouping attributes. Whatever aggregation operators are used in the SELECT clause are applied only within groups.
+
+Exam ple 6.31: The problem of finding, from the relation
+
+M o v ies(title, year, length, genre, studioName, producerC#)
+
+the sum of the lengths of all movies for each studio is expressed by
+
+SELECT studioName, SUM(length) FROM Movies GROUP BY studioName;
+
+We may imagine that the tuples of relation Movies are reorganized and grouped so that all the tuples for Disney studios are together, all those for MGM are together, and so on, as was suggested in Fig. 5.4. The sums of the length components of all the tuples in each group are calculated, and for each group, the studio name is printed along with that sum. □
+
+Observe in Example 6.31 how the SELECT clause has two kinds of terms. These are the only terms that may appear when there is an aggregation in the SELECT clause.
+
+1. Aggregations, where an aggregate operator is applied to an attribute or expression involving attributes. As mentioned, these terms are evaluated on a per-group basis.
+
+_CHAPTER 6. THE DATABASE LANGUAGE SQL_
+
+
+2. Attributes, such as studioName in this example, that appear in the GROUP BY clause. In a SELECT clause that has aggregations, only those attributes that are mentioned in the GROUP BY clause may appear unaggregated in the SELECT clause.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 6 The Database Language SQL** - Introduction
+We can construct relations by a number of variations on the join operator applied to two relations. These variants include products, natural joins, thetajoins, and outerjoins. The result can stand as a query by itself. Alternatively, all these expressions, since they produce relations, may be used as subqueries in the `FROM` clause of a select-from-where expression. These expressions are principally shorthands for more complex select-from-where queries (see Exercise 6.3.11).
+
+The simplest form of join expression is a _cross join;_ that term is a synonym for what we called a Cartesian product or just “product” in Section 2.4.7. For instance, if we want the product of the two relations
+
+```
+Movies(title, year, length, genre, studioName, producerC#)
+Starsln(movieTitle, movieYear, starName)
+```
+
+we can say
+
+###### `Movies CROSS JOIN Starsln;`
+
+and the result will be a nine-column relation with all the attributes of Movies and S tarsln. Every pair consisting of one tuple of Movies and one tuple of S tarsln will be a tuple of the resulting relation.
+
+The attributes in the product relation can be called _R.A,_ where _R_ is one of the two joined relations and _A_ is one of its attributes. If only one of the relations has an attribute named _A,_ then the _R_ and dot can be dropped, as usual. In this instance, since Movies and S tarsln have no common attributes, the nine attribute names suffice in the product.
+
+However, the product by itself is rarely a useful operation. A more conven­ tional theta-join is obtained with the keyword `ON.` We put `JOIN` between two
+
+
+_CHAPTER 6. THE DATABASE LANGUAGE SQL_
+
+relation names _R_ and _S_ and follow them by `ON` and a condition. The meaning of `JOIN... ON` is that the product of _R_ x _S_ is followed by a selection for whatever condition follows `ON.`
+
+**Exam ple 6 .2 3** : Suppose we want to join the relations
+
+```
+Movies(title, year, length, genre, studioName, producerC#)
+Starsln(movieTitle, movieYear, starName)
+```
+
+Chỉ thị cho LLM: Hãy trả lời câu hỏi sau dựa hoàn toàn vào tài liệu trên (nếu tài liệu không đủ thông tin, hãy nói rõ). Câu hỏi: So sánh UNION và UNION ALL trong SQL
+==================================================
+
+==================================================
+Câu hỏi: Cho ví dụ về vi phạm dạng chuẩn BCNF
+Vượt threshold (0.5): Có
+--- PROMPT SẼ GỬI CHO LLM ---
+Dựa trên các trích xuất tài liệu sau:
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 3 Design Theory for Relational Databases** - Introduction
+Now we immediately see a BCNF violation. We were given functional de­ pendency th e a te r _—¥_ city, but its left side, th eate r, is not a superkey. We are therefore tempted to decompose, using this BCNF-violating FD, into the two relation schemas:
+
+{theater, city} {theater, title }
+
+There is a problem with this decomposition, concerning the FD
+
+###### t i t l e c ity —^theater
+
+There could be current relations for the decomposed schemas that satisfy the FD th e a te r —> c ity (which can be checked in the relation {theater, city}) but that, when joined, yield a relation not satisfying t i t l e c ity —^theater. For instance, the two relations
+
+theater city `Guild Menlo Park Park Menlo Park`
+
+and
+
+theater title `Guild Antz Park Antz`
+
+are permissible according to the FD’s that apply to each of the above relations, but when we join them we get two tuples
+
+theater city title `Guild Menlo Park Antz Park Menlo Park Antz`
+
+that violate the FD t i t l e c ity _—¥_ th eater. □
+
+###### 102 _CHAPTER 3. DESIGN THEORY FOR RELATIONAL DATABASES_
+
+##### **3.4.5 Exercises for Section 3.4**
+
+Exercise 3.4.1: Let _R(A, B, C_ , _D, E)_ be decomposed into relations with the following three sets of attributes: _{A, B, C}, {B, C, D},_ and {A, _C, E)._ For each of the following sets of FD’s, use the chase test to tell whether the decomposition of _R_ is lossless. For those that are not lossless, give an example of an instance of _R_ that returns more than _R_ when projected onto the decomposed relations and rejoined.
+
+- a) B —^ _E_ and _CE —¥ A._
+
+- b) _AC_ -» _E_ and _BC D._
+
+- c) _A_ >■ _D_ , _D_ —^ _E_ , and _B_ —^ _D._
+
+- d) _A_ —>■ _D_ , _CD_ —> _E_ , and _E_ —^ _D._
+
+Exercise 3.4.2: For each of the sets of FD’s in Exercise 3.4.1, are dependencies preserved by the decomposition?
+
+#### **3.5 Third Normal Form**
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 3 Design Theory for Relational Databases** - Introduction
+The solution to the problem illustrated by Example 3.25 is to relax our BCNF requirement slightly, in order to allow the occasional relation schema that can­ not be decomposed into BCNF relations without our losing the ability to check the FD’s. This relaxed condition is called “third normal form.” In this section we shall give the requirements for third normal form, and then show how to do a decomposition in a manner quite different from Algorithm 3.20, in order to obtain relations in third normal form that have both the lossless-join and dependency-preservation properties.
+
+##### **3.5.1 Definition of Third Normal Form**
+
+A relation R is in third normal form (3NF) if:
+
+- Whenever Ai A2 ■ ■ ■ A„ —>■ BiB2 ■ ■ ■ Bm is a nontrivial FD, either
+
+_{A i ,A 2,... ,A„}_
+
+is a superkey, or those of _B%_ , _B 2_ ,... , _Bm_ that are not among the A’s, are each a member of some key (not necessarily the same key).
+
+An attribute that is a member of some key is often said to be prime. Thus, the 3NF condition can be stated as “for each nontrivial FD, either the left side is a superkey, or the right side consists of prime attributes only.”
+
+Note that the difference between this 3NF condition and the BCNF condi­ tion is the clause “is a member of some key (i.e., prime).” This clause “excuses” an FD like th eater _—>_ city in Example 3.25, because the right side, city, is prime.
+
+_3.5. THIRD NORMAL FORM_
+
+
+##### **Other Normal Forms**
+
+If there is a “third normal form,” what happened to the first two “nor­ mal forms”? They indeed were defined, but today there is little use for them. _First normal form_ is simply the condition that every component of every tuple is an atomic value. _Second normal form_ is a less restrictive verison of 3NF. There is also a “fourth normal form” that we shall meet in Section 3.6.
+
+##### **3.5.2 The Synthesis Algorithm for 3NF Schemas**
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 3 Design Theory for Relational Databases** - Introduction
+Yet there is no BCNF violation in the relation suggested by Fig. 3.10. There are, in fact, no nontrivial FD’s at all. For example, attribute c ity is not functionally determined by the other four attributes. There might be a star with two homes that had the same street address in different cities. Then there would be two tuples that agreed in all attributes but c ity and disagreed in city. Thus,
+
+_3.6. MULTIVALUED DEPENDENCIES_
+
+
+`name street title year` —> `city`
+
+is not an FD for our relation. We leave it to the reader to check that none of the five attributes is functionally determined by the other four. Since there are no nontrivial FD’s, it follows that all five attributes form the only key and that there are no BCNF violations. □
+
+##### **3.6.2 Definition of Multivalued Dependencies**
+
+A _multivalued dependency_ (abbreviated MVD) is a statement about some rela­ tion _R_ that when you fix the values for one set of attributes, then the values in certain other attributes are independent of the values of all the other attributes in the relation. More precisely, we say the MVD
+
+
+
+holds for a relation _R_ if when we restrict ourselves to the tuples of _R_ that have particular values for each of the attributes among the ,4’s, then the set of values we find among the B ’s is independent of the set of values we find among the attributes of _R_ that are not among the ,4’s or B ’s. Still more precisely, we say this MVD holds if
+
+For each pair of tuples _t_ and _u_ of relation _R_ that agree on all the **`j4’s,`** we can find in _R_ some tuple _v_ that agrees:
+
+1. With both _t_ and _u_ on the A’s,
+
+2. With _t_ on the B ’s, and
+
+3. With _u_ on all attributes of _R_ that axe not among the _A's_ or B ’s.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 3 Design Theory for Relational Databases** - Introduction
+###### `name — street city`
+
+is a nontrivial MVD, yet name by itself is not a superkey. In fact, the only key for this relation is all the attributes. □
+
+Fourth normal form is truly a generalization of BCNF. Recall from Sec­ tion 3.6.3 that every FD is also an MVD. Thus, every BCNF violation is also a 4NF violation. Put another way, every relation that is in 4NF is therefore in BCNF.
+
+However, there are some relations that are in BCNF but not 4NF. Fig­ ure 3.10 is a good example. The only key for this relation is all five attributes, and there are no nontrivial FD’s. Thus it is surely in BCNF. However, as we observed in Example 3.32, it is not in 4NF.
+
+##### **3.6.5 Decomposition into Fourth Normal Form**
+
+The 4NF decomposition algorithm is quite analogous to the BCNF decomposi­ tion algorithm.
+
+A lgorithm 3.33: Decomposition into Fourth Normal Form.
+
+**`INPUT:`** A relation _Ro_ with a set of functional and multivalued dependencies _S0._
+
+**`O UT P U T :`** A decomposition of _Ro_ into relations all of which are in 4NF. The decomposition has the lossless-join property.
+
+**`M E T H O D :`** Do the following steps, with _R — Ro_ and _S_ = _So'-_
+
+1. Find a 4NF violation in _R,_ say _A 1 A 2 ---A n B \B 2 ■ ■ ■ Bm._ where
+
+
+
+is not a superkey. Note this MVD could be a true MVD in _S,_ or it could be derived from the corresponding FD .4 **1^-2** ■ • • _An_ —>■ _B iB 2_ • • • _Bm_ in _S,_ since every FD is an MVD. If there is none, return; _R_ by itself is a suitable decomposition.
+
+2. If there is such a 4NF violation, break the schema for the relation _R_ that has the 4NF violation into two schemas:
+
+###### 112 _CHAPTER 3. DESIGN THEORY FOR RELATIONAL DATABASES_
+
+- (a) _Ri,_ whose schema is A’s and the _B's._
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 3 Design Theory for Relational Databases** - Introduction
+- ♦ _Boyce-Codd Normal Form:_ A relation is in BCNF if the only nontrivial FD’s say that some superkey functionally determines one or more of the other attributes. A major benefit of BCNF is that it eliminates redun­ dancy caused by the existence of FD’s.
+
+- ♦ _Lossless-Join Decomposition:_ A useful property of a decomposition is that the original relation can be recovered exactly by taking the natural join of the relations in the decomposition. Any decomposition gives us back at least the tuples with which we start, but a carelessly chosen decomposition can give tuples in the join that were not in the original relation.
+
+- ♦ _Dependency-Preserving Decomposition:_ Another desirable property of a decomposition is that we can check all the functional dependencies that hold in the original relation by checking FD’s in the decomposed relations.
+
+- ♦ _Third Normal Form:_ Sometimes decomposition into BCNF can lose the dependency-preservation property. A relaxed form of BCNF, called 3NF, allows an FD _X_ -»■ _A_ even if _X_ is not a superkey, provided A is a member of some key. 3NF does not guarantee to eliminate all redundancy due to FD’s, but often does so.
+
+- ♦ _The Chase:_ We can test whether a decomposition has the lossless-join property by setting up a tableau — a set of rows that represent tuples of the original relation. We chase a tableau by applying the given functional dependencies to infer that certain pairs of symbols must be the same. The decomposition is lossless with respect to a given set of FD’s if and only if the chase leads to a row identical to the tuple whose membership in the join of the projected relations we assumed.
+
+> 1 2 2 _CHAPTER 3. DESIGN THEORY FOR RELATIONAL DATABASES_
+
+- ♦ _Synthesis Algorithm, for 3NF:_ If we take a minimal basis for a given set of FD’s, turn each of these FD’s into a relation, and add a key for the relation, if necessary, the result is a decomposition into 3NF that has the lossless-join and dependency-preservation properties.
+
+Chỉ thị cho LLM: Hãy trả lời câu hỏi sau dựa hoàn toàn vào tài liệu trên (nếu tài liệu không đủ thông tin, hãy nói rõ). Câu hỏi: Cho ví dụ về vi phạm dạng chuẩn BCNF
+==================================================
+
+==================================================
+Câu hỏi: Transaction là gì và ACID gồm những gì
+Vượt threshold (0.5): Có
+--- PROMPT SẼ GỬI CHO LLM ---
+Dựa trên các trích xuất tài liệu sau:
+
+--- Nguồn: ullman_the_complete_book.md ---
+**More About Transaction Management** - Introduction
+Let us say that two sequences of actions are _equivalent_ (=) if they take any database state _D_ to the same state. The fundamental assumption about com­ pensating transactions can be stated:
+
+- If _A_ is any action and _a_ is any sequence of legal actions and compensating transactions, then _A aA_ -1 = _a._
+
+Now, we need to show that if a saga execution _Ai A 2 ■ ■ ■ An_ is followed by its compensating transactions in reverse order, _A~[ ■ ■ ■ A 2 lA ^ 1,_ with any inter­ vening actions whatsoever, then the effect is as if neither the actions nor the compensating transactions executed. The proof is an induction on n.
+
+> **3In the saga of Fig. 19.11, the only time these actions are compensated is when we are going to delete the form anyway, but the definition of compensating transactions require that they work in isolation, regardless of whether some other compensating transaction was going to make their changes irrelevant.**
+
+_19.3. LONG-DURATION TRANSACTIONS_
+
+
+**`BASIS:`** If **`n`** = **`1,`** then the sequence of all actions between _Ai_ and its compen­ sating transaction _A_ f 1 looks like _A ia A ^1._ By the fundamental assumption about compensating transactions, _A^aA ^ 1_ = _a._
+
+**`INDUCTION:`** Assume the statement for paths of up to _n_ — **`1`** actions, and consider a path of _n_ actions, followed by its compensating transactions in reverse order, with any other transactions intervening. The sequence looks like
+
+
+
+where all Greek letters represent sequences of zero or more actions. By the definition of compensating transaction, _AnfiA~l =_ /?. Thus, (19.1) is equivalent to
+
+
+
+By the inductive hypothesis, expression (19.2) is equivalent to
+
+
+
+since there are only _n —_ 1 actions in (19.2). That is, the saga and its compen­ sation leave the database state the same as if the saga had never occurred.
+
+##### **19.3.5 Exercises for Section 19.3**
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Concurrency Control** - Introduction
+- **_T2:_** _l2 (B); r 2 (B)\_ `B := B*2;` _w2 (B); l2 (A); u 2 (B); r 2 {A)\_ **_A_ :=** `A*2;` _w2 (A); u 2 (A);_
+
+- A possible interleaving of the actions of these transactions is:
+
+
+
+
+Ti  T2 A  B 25 25 h(A); n(A); l2(B); r2(B ); A := A+100; B := B*2; 125 w2(B)\ 50 l\(B)  D enied  l2(A)  D enied 
+
+Now, neither transaction can proceed, and they wait forever. In Sec­ tion 19.2, we shall discuss methods to remedy this situation. However, observe that it is not possible to allow both transactions to proceed, since if we do so the final database state cannot possibly have **_A = B._**
+
+conflict-equivalent serial schedule, and now all of **_S_** has been shown conflictserializable.
+
+##### **18.3.5 Exercises for Section 18.3**
+
+Exercise 18.3.1: Below are two transactions, with lock requests and the se­ mantics of the transactions indicated. Recall from Exercise 18.2.1 that these transactions have the unusual property that they can be scheduled in ways that are not conflict-serializable, but, because of the semantics, are serializable.
+
+- Ti: **_h(A);_** **`ri(A);`** `A := A+2;` **_wi(A);_** **`wi(4);`** _li(B);_ `rj(B); B := B*3;` wi `(£);` _Ui(B);_
+
+_CHAPTER 18. CONCURRENCY CONTROL_
+
+
+- _T2: l2 (B); r 2 {B);_ B := B*2; _w 2 {B); u 2 (B);_ /2(A); _r 2 (A);_ A := A+3; _w 2 (A); u 2 (A);_
+
+In the questions below, consider only schedules of the read and write actions, not the lock, unlock, or assignment steps.
+
+- a) Give an example of a schedule that is prohibited by the locks.
+
+- ! b) Of the (*) = 70 orders of the eight read and write actions, how many are legal schedules (i.e., they are permitted by the locks)?
+
+- ! c) Of the legal schedules, how many are serializable (according to the se­ mantics of the transactions given)?
+
+- ! d) Of those schedules that are legal and serializable, how many are conflictserializable?
+
+--- Nguồn: Chuong 3_Dai So Quan He.md ---
+ Được diễn đạt
+- Rnew  Rold  E
+- - R là quan hệ
+- - E là một biểu thức ĐSQH
+- Ví dụ
+- Xóa các hóa đơn do nhân viên NV02 lập
+HOADON  HOADON    MANV=‘NV02’ (HOADON) Cơ sở dữ liệu 77 
+
+--- Nguồn: ullman_the_complete_book.md ---
+**More About Transaction Management** - Introduction
+1. Each action may be considered itself a (short) transaction, that when exe­ cuted uses a conventional concurrency-control mechanism, such as locking. For instance, _A 2_ may be implemented to (briefly) obtain a lock on account A123, decrement the amount indicated on the travel voucher, and release the lock. This locking prevents two transactions from trying to write new values of the account balance at the same time, thereby losing the effect of the first to write and making money “appear by magic.”
+
+2. The overall transaction, which can be any of the paths to a terminal node, is managed through the mechanism of “compensating transactions,” which are inverses to the transactions at the nodes of the saga. Their job is to roll back the effect of a committed action in a way that does not depend on what has happened to the database between the time the action was executed and the time the compensating transaction is executed.
+
+_19.3. LONG-D URATION TRANSACTIONS_
+
+
+##### **When are Database States “The Same”?**
+
+When discussing compensating transactions, we should be careful about what it means to return the database to “the same” state that it had before. We had a taste of the problem when we discussed logical logging for B-trees in Example 19.8. There we saw that if we “undid” an oper­ ation, the state of the B-tree might not be identical to the state before the operation, but would be equivalent to it as far as access operations on the B-tree were concerned. More generally, executing an action and its compensating transaction might not restore the database to a state literally identical to what existed before, but the differences must not be detectable by whatever application programs the database supports.
+
+##### **19.3.3 Compensating Transactions**
+
+In a saga, each action _A_ has a _compensating transaction,_ which we denote _A_ -1. Intuitively, if we execute _A,_ and later execute _A~1,_ then the resulting database state is the same as if neither _A_ nor _A ~ 1_ had executed. More formally:
+
+--- Nguồn: ullman_the_complete_book.md ---
+**More About Transaction Management** - Introduction
+The subtlety of group commit reminds us that a completed transaction can be in several different states between when it finishes its work and when it is truly “committed,” in the sense that under no circumstances, including the occurrence of a system failure, will the effect of that transaction be lost. As we noted in Chapter 17, it is possible for a transaction to finish its work and even write its COMMIT record to the log in a main-memory buffer, yet have the effect of that transaction lost if there is a system crash and the COMMIT record has not yet reached disk. Moreover, we saw in Section 17.5 that even if the COMMIT record is on disk but not yet backed up in the archive, a media failure can cause the transaction to be undone and its effect to be lost.
+
+In the absence of failure, all these states are equivalent, in the sense that each transaction will surely advance from being finished to having its effects survive even a media failure. However, when we need to take failures and recovery into account, it is important to recognize the differences among these states, which otherwise could all be referred to informally as “committed.”
+
+is small, e.g., a rewritten attribute of one tuple, or an inserted or deleted tuple, then there is a great deal of redundant information written on the log.
+
+2. The requirement that the schedule be recoverable, releasing its locks only after commit, can inhibit concurrency severely. For example, recall our discussion in Section 18.7.1 of the advantage of early lock release as we access data through a B-tree index. If we require that locks be held until commit, then this advantage cannot be obtained, and we effectively allow only one writing transaction to access a B-tree at any time.
+
+Both these concerns motivate the use of _logical logging,_ where only the changes to the blocks are described. There are several degrees of complexity, depending on the nature of the change.
+
+Chỉ thị cho LLM: Hãy trả lời câu hỏi sau dựa hoàn toàn vào tài liệu trên (nếu tài liệu không đủ thông tin, hãy nói rõ). Câu hỏi: Transaction là gì và ACID gồm những gì
+==================================================
+
+==================================================
+Câu hỏi: asdkjaskjd
+Vượt threshold (0.5): Không
+--- PROMPT SẼ GỬI CHO LLM ---
+Câu hỏi: asdkjaskjd
+
+Chỉ thị cho LLM: Tài liệu hiện có không đề cập đến vấn đề này. Vui lòng trả lời người dùng rằng tài liệu môn học không chứa thông tin để trả lời câu hỏi này.
+==================================================
+
+==================================================
+Câu hỏi: làm sao để cài đặt MySQL trên Windows
+Vượt threshold (0.5): Không
+--- PROMPT SẼ GỬI CHO LLM ---
+Câu hỏi: làm sao để cài đặt MySQL trên Windows
+
+Chỉ thị cho LLM: Tài liệu hiện có không đề cập đến vấn đề này. Vui lòng trả lời người dùng rằng tài liệu môn học không chứa thông tin để trả lời câu hỏi này.
+==================================================
+
+==================================================
+Câu hỏi: MongoDB lưu trữ dữ liệu dưới dạng nào?
+Vượt threshold (0.5): Có
+--- PROMPT SẼ GỬI CHO LLM ---
+Dựa trên các trích xuất tài liệu sau:
+
+--- Nguồn: Chuong 1_Tong quan ve CSDL.md ---
+5. Hệ quản trị cơ sở dữ liệu (1)
+- Hệ quản trị cơ sở dữ liệu (DBMS – DataBase Management System) là hệ thống các phần mềm hỗ trợ tích cực cho các nhà phân tích, thiết kế và khai thác CSDL.
+- Các DBMS thông dụng: Visual FoxPro, Microsoft Access, SQL Server, DB2, Oracle … hầu hết các DBMS hiện nay đều dựa trên mô hình quan hệ.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Database Systems and the Internet** - Introduction
+We now turn to an extension of the ideas contained in the traditional DBMS to deal with _data streams._ As the Internet has made communication among ma­ chines routine, a class of applications has developed that stress the traditional model of a database system. Recall that a typical database system is primarily a repository of data. Input of data is done as part of the query language or a special data-load utility, and is assumed to occur at a rate controlled by the DBMS.
+
+However, in some applications, the inputs arrive at a rate the DBMS cannot control. For example, Yahoo! may wish to record every “click,” that is, every page request made by any user anywhere. The sequence of URL’s representing these requests arrive at a very high rate that is determined only by the desires of Yahoo!’s customers.
+
+1162
+
+_CHAPTER 23. DATABASE SYSTEMS AND THE INTERNET_
+
+##### **23.4.1 Data-Stream-Management Systems**
+
+If we are to allow queries on such streams of data, we need some new mecha­ nisms. While we may be able to store the data on high-rate streams, we cannot do so in a way that allows instantaneous queries using a language like SQL. Further, it is not even clear what some queries mean; for instance, how can we take the join of two streams, when we never can see the completed streams? The rough structure of a data-stream-management system ( _DSMS)_ is shown in Fig. 23.10.
+
+
+
+
+Ad-hoc Results Queries Results of Standing Queries 
+
+The system accepts data streams as input, and also accepts queries. These queries may be of two kinds:
+
+1. Conventional ad-hoc queries.
+
+2. _Standing queries_ that are stored by the system and run on the input stream(s) at all times.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 1 The Worlds of Database Systems** - Introduction
+The early DBMS’s required the programmer to visualize data much as it was stored. These database systems used several different data models for
+
+
+###### _1.1. THE EVOLUTION OF DATABASE SYSTEMS_
+
+describing the structure of the information in a database, chief among them the “hierarchical” or tree-based model and the graph-based “network” model. The latter was standardized in the late 1960’s through a report of CODASYL (Committee on Data Systems and Languages).1
+
+A problem with these early models and systems was that they did not sup­ port high-level query languages. For example, the CODASYL query language had statements that allowed the user to jump from data element to data ele­ ment, through a graph of pointers among these elements. There was consider­ able effort needed to write such programs, even for very simple queries.
+
+##### **1.1.2 Relational Database Systems**
+
+Following a famous paper written by Ted Codd in 1970,2 database systems changed significantly. Codd proposed that database systems should present the user with a view of data organized as tables called _relations._ Behind the scenes, there might be a complex data structure that allowed rapid response to a variety of queries. But, unlike the programmers for earlier database sys­ tems, the programmer of a relational system would not be concerned with the storage structure. Queries could be expressed in a very high-level language, which greatly increased the efficiency of database programmers. We shall cover the relational model of database systems throughout most of this book. SQL (“Structured Query Language”), the most important query language based on the relational model, is covered extensively.
+
+By 1990, relational database systems were the norm. Yet the database field continues to evolve, and new issues and approaches to the management of data surface regularly. Object-oriented features have infilrated the relational model. Some of the largest databases are organized rather differently from those using relational methodology. In the balance of this section, we shall consider some of the modern trends in database systems.
+
+##### **1.1.3 Smaller and Smaller Systems**
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 9 SQL in a Server Environment** - Introduction
+In this section we shall take the broadest possible view of a DBMS and the databases and programs it supports. We shall see how databases are defined and organized into clusters, catalogs, and schemas. We shall also see how programs are linked with the data they need to manipulate. Many of the details depend on the particular implementation, so we shall concentrate on the general ideas that are contained in the SQL standard. Sections 9.5, 9.6, and 9.7 illustrate how these high-level concepts appear in a “call-level interface,” which requires the programmer to make explicit connections to databases.
+
+
+###### _9.2. THE SQL ENVIRONMENT_
+
+##### **9.2.1 Environments**
+
+A _SQL environment_ is the framework under which data may exist and SQL operations on data may be executed. In practice, we should think of a SQL environment as a DBMS running at some installation. For example, ABC company buys a license for the Megatron 2010 DBMS to run on a collection of ABC’s machines. The system running on these machines constitutes a SQL environment.
+
+All the database elements we have discussed — tables, views, triggers, and so on — are defined within a SQL environment. These elements axe organized into a hierarchy of structures, each of which plays a distinct role in the organization. The structures defined by the SQL standard are indicated in Fig. 9.2.
+
+Figure 9.2: Organization of database elements within the environment
+
+Briefly, the organization consists of the following structures:
+
+1. _Schemas._ These are collections of tables, views, assertions, triggers, and some other types of information (see the box on “More Schema Elements” in Section 9.2.2). Schemas are the basic units of organization, close to what we might think of as a “database,” but in fact somewhat less than a database as we shall see in point (3) below.
+
+2. _Catalogs._ These are collections of schemas. They are the basic unit for supporting unique, accessible terminology. Each catalog has one or more schemas; the names of schemas within a catalog must be unique, and
+
+_CHAPTER 9. SQL IN A SERVER ENVIRONMENT_
+
+--- Nguồn: Chuong 1_Tong quan ve CSDL.md ---
+ **Định nghĩa** :
+Cơ sởdữ liệu là một hệ thống các thông tin có cấu trúc, được lưu trữ trên các thiết bịlưu trữ nhằm thỏa mãn yêu cầu khai thác thông tin đồng thời của nhiều người sử dụng hay nhiều chương trình ứng dụng với những mục đích khác nhau
+
+Chỉ thị cho LLM: Hãy trả lời câu hỏi sau dựa hoàn toàn vào tài liệu trên (nếu tài liệu không đủ thông tin, hãy nói rõ). Câu hỏi: MongoDB lưu trữ dữ liệu dưới dạng nào?
+==================================================
+
+==================================================
+Câu hỏi: Làm thế nào để sử dụng phpMyAdmin quản lý database?
+Vượt threshold (0.5): Có
+--- PROMPT SẼ GỬI CHO LLM ---
+Dựa trên các trích xuất tài liệu sau:
+
+--- Nguồn: Chuong 1_Tong quan ve CSDL.md ---
+5. Hệ quản trị cơ sở dữ liệu (1)
+- Hệ quản trị cơ sở dữ liệu (DBMS – DataBase Management System) là hệ thống các phần mềm hỗ trợ tích cực cho các nhà phân tích, thiết kế và khai thác CSDL.
+- Các DBMS thông dụng: Visual FoxPro, Microsoft Access, SQL Server, DB2, Oracle … hầu hết các DBMS hiện nay đều dựa trên mô hình quan hệ.
+
+--- Nguồn: Chuong 1_Tong quan ve CSDL.md ---
+5. Hệ quản trị cơ sở dữ liệu (2)
+- Một DBMS phải có:
+- Ngôn ngữ giao tiếp giữa người sử dụng và CSDL
+- Từ điển dữ liệu (Data Dictionary)
+- Có biện pháp bảo mật khi có yêu cầu
+- Cơ chế giải quyết tranh chấp dữ liệu
+- Có cơ chế sao lưu (backup), phục hồi (restore)
+ Đảm bảo tính độc lập giữa dữ liệu và chương trình
+9/5/2024
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 1 The Worlds of Database Systems** - Introduction
+4. Enable _durability,_ the recovery of the database in the face of failures, errors of many kinds, or intentional misuse.
+
+5. Control access to data from many users at once, without allowing unex­ pected interactions among users (called _isolation)_ and without actions on the data to be performed partially but not completely (called _atomicity)._
+
+##### **1.1.1 Early Database Management Systems**
+
+The first commercial database management systems appeared in the late 1960’s. These systems evolved from file systems, which provide some of item (3) above; file systems store data over a long period of time, and they allow the storage of large amounts of data. However, file systems do not generally guarantee that data cannot be lost if it is not backed up, and they don’t support efficient access to data items whose location in a particular file is not known.
+
+Further, file systems do not directly support item (2), a query language for the data in files. Their support for (1) — a schema for the data — is limited to the creation of directory structures for files. Item (4) is not always supported by file systems; you can lose data that has not been backed up. Finally, file systems do not satisfy (5). While they allow concurrent access to files by several users or processes, a file system generally will not prevent situations such as two users modifying the same file at about the same time, so the changes made by one user fail to appear in the file.
+
+The first important applications of DBMS’s were ones where data was com­ posed of many small items, and many queries or modifications were made. Examples of these applications are:
+
+1. Banking systems: maintaining accounts and making sure that system failures do not cause money to disappear.
+
+2. Airline reservation systems: these, like banking systems, require assurance that data will not be lost, and they must accept very large volumes of small actions by customers.
+
+3. Corporate record keeping: employment and tax records, inventories, sales records, and a great variety of other types of information, much of it critical.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 1 The Worlds of Database Systems** - Introduction
+It is normal to group one or more database operations into a _transaction,_ which is a unit of work that must be executed atomically and in apparent isolation from other transactions. In addition, a DBMS offers the guarantee of durability: that the work of a completed transaction will never be lost. The _transaction manager_ therefore accepts _transaction commands_ from an application, which tell the transaction manager when transactions begin and end, as well as infor­ mation about the expectations of the application (some may not wish to require atomicity, for example). The transaction processor performs the following tasks:
+
+1. _Logging:_ In order to assure durability, every change in the database is logged separately on disk. The _log manager_ follows one of several policies designed to assure that no matter when a system failure or “crash” occurs, a _recovery manager_ will be able to examine the log of changes and restore the database to some consistent state. The log manager initially writes the log in buffers and negotiates with the buffer manager to make sure that buffers are written to disk (where data can survive a crash) at appropriate times.
+
+2. _Concurrency control:_ Transactions must appear to execute in isolation. But in most systems, there will in truth be many transactions executing
+
+_OVERVIEW OF A DATABASE MANAGEMENT SYSTEM_
+
+
+##### **The ACID Properties of Transactions**
+
+Properly implemented transactions are commonly said to meet the “ACID test,” where:
+
+- “A” stands for “atomicity,” the all-or-nothing execution of trans­ actions.
+
+- “I” stands for “isolation,” the fact that each transaction must appear to be executed as if no other transaction is executing at the same time.
+
+- “D” stands for “durability,” the condition that the effect on the database of a transaction must never be lost, once the transaction has completed.
+
+The remaining letter, “C,” stands for “consistency.” That is, all databases have consistency constraints, or expectations about relationships among data elements (e.g., account balances may not be negative after a trans­ action finishes). Transactions are expected to preserve the consistency of the database.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Database Systems and the Internet** - Introduction
+We now turn to an extension of the ideas contained in the traditional DBMS to deal with _data streams._ As the Internet has made communication among ma­ chines routine, a class of applications has developed that stress the traditional model of a database system. Recall that a typical database system is primarily a repository of data. Input of data is done as part of the query language or a special data-load utility, and is assumed to occur at a rate controlled by the DBMS.
+
+However, in some applications, the inputs arrive at a rate the DBMS cannot control. For example, Yahoo! may wish to record every “click,” that is, every page request made by any user anywhere. The sequence of URL’s representing these requests arrive at a very high rate that is determined only by the desires of Yahoo!’s customers.
+
+1162
+
+_CHAPTER 23. DATABASE SYSTEMS AND THE INTERNET_
+
+##### **23.4.1 Data-Stream-Management Systems**
+
+If we are to allow queries on such streams of data, we need some new mecha­ nisms. While we may be able to store the data on high-rate streams, we cannot do so in a way that allows instantaneous queries using a language like SQL. Further, it is not even clear what some queries mean; for instance, how can we take the join of two streams, when we never can see the completed streams? The rough structure of a data-stream-management system ( _DSMS)_ is shown in Fig. 23.10.
+
+
+
+
+Ad-hoc Results Queries Results of Standing Queries 
+
+The system accepts data streams as input, and also accepts queries. These queries may be of two kinds:
+
+1. Conventional ad-hoc queries.
+
+2. _Standing queries_ that are stored by the system and run on the input stream(s) at all times.
+
+Chỉ thị cho LLM: Hãy trả lời câu hỏi sau dựa hoàn toàn vào tài liệu trên (nếu tài liệu không đủ thông tin, hãy nói rõ). Câu hỏi: Làm thế nào để sử dụng phpMyAdmin quản lý database?
+==================================================
+
+==================================================
+Câu hỏi: Cấu hình Replica Set trong cơ sở dữ liệu phân tán
+Vượt threshold (0.5): Có
+--- PROMPT SẼ GỬI CHO LLM ---
+Dựa trên các trích xuất tài liệu sau:
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Parallel and Distributed Databases** - Introduction
+When data is replicated, we must arrange that the copies of a single ele­ ment _X_ are changed in the same way by each transaction. This requirement introduces a distinction between locking the _logical_ database element _X_ and locking one or more of the copies of _X ._ In this section, we shall offer a cost model for distributed locking algorithms that applies to both replicated and nonreplicated data. However, before introducing the model, let us consider an obvious (and sometimes adequate) solution to the problem of maintaining locks in a distributed database — centralized locking.
+
+_20.6. DISTRIBUTED LOCKING_
+
+1015
+
+##### **20.6.1 Centralized Lock Systems**
+
+Perhaps the simplest approach is to designate one site, the _lock site,_ to maintain a lock table for logical elements, whether or not they have copies at that site. When a transaction wants a lock on logical element _X ,_ it sends a request to the lock site, which grants or denies the lock, as appropriate. Since obtaining a global lock on _X_ is the same as obtaining a local lock on _X_ at the lock site, we can be sure that global locks behave correctly as long as the lock site administers locks conventionally. The usual cost is three messages per lock (request, grant, and release), unless the transaction happens to be running at the lock site.
+
+The use of a single lock site can be adequate in some situations, but if there are many sites and many simultaneous transactions, the lock site could become a bottleneck. Further, if the lock site crashes, no transaction at any site can obtain locks. Because of these problems with centralized locking, there are a number of other approaches to maintaining distributed locks, which we shall introduce after discussing how to estimate the cost of locking.
+
+##### **20.6.2 A Cost Model for Distributed Locking Algorithms**
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Parallel and Distributed Databases** - Introduction
+Exam ple 20.17: Suppose there are two copies, _Xi_ and _X 2,_ of a database element _X ._ Suppose also that a transaction T gets a shared lock on the copy Xi at the site of that copy, while transaction _U_ gets an exclusive lock on the copy _X 2_ at its site. Now, _U_ can change _X 2_ but cannot change _X i_ , resulting in the two copies of the element _X_ becoming different. Moreover, since _T_ and _U_ may lock other elements as well, and the order in which they read and write _X_ is not forced by the locks they hold on the copies of _X ,_ there is also an opportunity for _T_ and _U_ to engage in unserializable behavior. □
+
+1017
+
+###### _20.6. DISTRIBUTED LOCKING_
+
+The problem illustrated by Example 20.17 is that when data is replicated, we must distinguish between getting a shared or exclusive lock on the logical element _X_ and getting a local lock on a copy of _X ._ That is, in order to assure serializability, we need for transactions to take global locks on the logical elements. But the logical elements don’t exist physically — only their copies do — and there is no global lock table. Thus, the only way that a transaction can obtain a global lock on _X_ is to obtain local locks on one or more copies of _X_ at the site(s) of those copies. We shall now consider methods for turning local locks into global locks that have the required property:
+
+- A logical element _X_ can have either one exclusive lock and no shared lock, or any number of shared locks and no exclusive locks.
+
+##### **20.6.4 Primary-Copy Locking**
+
+--- Nguồn: ullman_the_complete_book.md ---
+**The Relational Model of Data** - Introduction
+_CHAPTER 2. THE RELATIONAL MODEL OF DATA_
+
+
+3. Temporary tables, which are constructed by the SQL language processor when it performs its job of executing queries and data modifications. These relations are then thrown away and not stored.
+
+`In this section, we shall learn how to declare tables. We do not treat the dec­ laration and definition of views here, and temporary tables are never declared. The SQL CREATE TABLE statement declares the schema for a stored relation. It gives a name for the table, its attributes, and their data types. It also allows us to declare a key, or even several keys, for a relation. There are many other features to the CREATE TABLE statement, including many forms of constraints that can be declared, and the declaration of` indexes `(data structures that speed up many operations on the table) but we shall leave those for the appropriate time.`
+
+##### **2.3.2 Data Types**
+
+To begin, let us introduce the primitive data types that are supported by SQL systems. All attributes must have a data type.
+
+`1. Character strings of fixed or varying length. The type CHAR(n) denotes a fixed-length string of up to` n `characters. VARCHAR(n) also denotes a string of up to` n `characters. The difference is implementation-dependent; typically CHAR implies that short strings are padded to make` n `characters, while VARCHAR implies that an endmarker or string-length is used. SQL permits reasonable coercions between values of character-string types. Normally, a string is padded by trailing blanks if it becomes the value of a component that is a fixed-length string of greater length. For ex­ ample, the string ’foo’ ,2 if it became the value of a component for an attribute of type CHAR(5), would assume the value ’foo ’ (with two blanks following the second o).`
+
+2. Bit strings of fixed or varying length. These strings are analogous to fixed and varying-length character strings, but their values are strings of bits rather than characters. The type `BIT` (n) denotes bit strings of length n, while `BIT VARYING` (n) denotes bit strings of length up to n.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Parallel and Distributed Databases** - Introduction
+- !! Exercise 20.3.1: The following exercise will allow you to address some of the problems that come up when deciding on a replication strategy for data. Suppose there is a relation _R_ that is accessed from n sites. The ith site issues _qi_ queries about _R_ and _Ui_ updates to _R_ per second, for i = 1 ,2 ,..., _n._ The cost of executing a query if there is a copy of _R_ at the site issuing the query is c, while if there is no copy there, and the query must be sent to some remote site, then the cost is 10c. The cost of executing an update is _d_ for the copy of _R_ at the issuing site and lOd for every copy of _R_ that is not at the issuing site. As a function of these parameters, how would you choose, for large n, a set of sites at which to replicate _R._
+
+#### **20.4 Distributed Query Processing**
+
+We now turn to optimizing queries on a network of distributed machines. When communication among processors is a significant cost, there are some query plans that can be more efficient than the ones we developed in Section 20.1 for processors that could communicate locally. Our principal objective is a new way of computing joins, using the semijoin operator that was introduced in Exercise 2.4.8.
+
+##### **20.4.1 The Distributed Join Problem**
+
+Suppose we want to compute _R(A,B)_ txi _S(B,C)._ However, _R_ and _S_ reside at different nodes of a network, as suggested in Fig. 20.5. There are two obvious ways to compute the join.
+
+
+
+
+T  ' — R (A,B ) S(B,C) 
+
+Figure 20.5: Joining relations at different nodes of a network
+
+1. Send a copy of _R_ to the site of _S,_ and compute the join there.
+
+2. Send a copy of _S_ to the site of _R_ and compute the join there.
+
+In many situations, either of these methods is fine. However, problems can arise, such as:
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Parallel and Distributed Databases** - Introduction
+Having sent 7ry(5) to the site of _R,_ we can compute _R X S_ there. We know those tuples of _R_ that are not in _R X S_ cannot participate in _R_ ix _S._ Therefore it is sufficient to send _R X S ,_ rather than all of _R,_ to the site of _S_ and to compute the join there. This plan is suggested by Fig. 20.6 for the relations _R(A,B)_ and _S(B, C)._ Of course there is a symmetric plan where the roles of _R_ and _S_ are interchanged.
+
+
+
+
+^ ---  Jtj'(S) R \ X S 
+
+Figure 20.6: Exploiting the semijoin to minimize communication
+
+Whether this semijoin plan, or the plan with _R_ and _S_ interchanged is more efficient than one of the obvious plans depends on several factors. First, if the projection of _S_ onto _Y_ results in a relation much smaller than 5, then it is cheaper to send _tty(S)_ to the site of _R,_ rather than _S_ itself. _tty(S)_ will be small compared with _S_ if either or both of the following hold:
+
+1. There are many duplicates to be eliminated; i.e., many tuples of _S_ share _Y -_ values.
+
+2. The components for the attributes of _Z_ are large compared with the components of _Y;_ e.g., _Z_ includes attributes whose values are audios, videos, or documents.
+
+In order for the semijoin plan to be superior, we also need to know that the size of _R_ X _S_ is smaller than _R._ That is, _R_ must contain many dangling tuples in its join with _S._
+
+1002 _CHAPTER 20. PARALLEL AND DISTRIBUTED DATABASES_
+
+##### **20.4.3 Joins of Many Relations**
+
+When we want to take the natural join of two relations, only one semijoin is useful. The same holds for an equijoin, since we can act as if the equated pairs of attributes had the same name and treat the equijoin as if it were a natural join. However, when we take the natural join or equijoin of three or more relations at different sites, several surprising things happen.
+
+Chỉ thị cho LLM: Hãy trả lời câu hỏi sau dựa hoàn toàn vào tài liệu trên (nếu tài liệu không đủ thông tin, hãy nói rõ). Câu hỏi: Cấu hình Replica Set trong cơ sở dữ liệu phân tán
+==================================================
+
+==================================================
+Câu hỏi: Giải thích khái niệm Eventual Consistency trong NoSQL
+Vượt threshold (0.5): Có
+--- PROMPT SẼ GỬI CHO LLM ---
+Dựa trên các trích xuất tài liệu sau:
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Concurrency Control** - Introduction
+
+Interactions among concurrently executing transactions can cause the database state to become inconsistent, even when the transactions individually preserve correctness of the state, and there is no system failure. Thus, the timing of individual steps of different transactions needs to be regulated in some manner. This regulation is the job of the _scheduler_ component of the DBMS, and the general process of assuring that transactions preserve consistency when execut­ ing simultaneously is called _concurrency control._ The role of the scheduler is suggested by Fig. 18.1.
+
+
+
+
+Read/W rite requests Reads and writes Buffers 
+
+Figure 18.1: The scheduler takes read/write requests from transactions and either executes them in buffers or delays them
+
+As transactions request reads and writes of database elements, these requests are passed to the scheduler. In most situations, the scheduler will execute the reads and writes directly, first calling on the buffer manager if the desired database element is not in a buffer. However, in some situations, it is not safe for the request to be executed immediately. The scheduler must delay the request; in some concurrency-control techniques, the scheduler may even abort the transaction that issued the request.
+
+
+
+_CHAPTER 18. CONCURRENCY CONTROL_
+
+We begin by studying how to assure that concurrently executing trans­ actions preserve correctness of the database state. The abstract requirement is called _serializability,_ and there is an important, stronger condition called _conflict-serializability_ that most schedulers actually enforce. We consider the most important techniques for implementing schedulers: locking, timestamping, and validation. Our study of lock-based schedulers includes the important concept of “two-phase locking,” which is a requirement widely used to assure serializability of schedules.
+
+#### **18.1 Serial and Serializable Schedules**
+
+Recall the “correctness principle” from Section 17.1.3: every transaction, if ex­ ecuted in isolation (without any other transactions running concurrently), will transform any consistent state to another consistent state. In practice, transac­ tions often run concurrently with other transactions, so the correctness principle doesn’t apply directly. This section introduces the notion of “schedules,” the se­ quence of actions performed by transactions and “serializable schedules,” which produce the same result as if the transactions executed one-at-a-time.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Concurrency Control** - Introduction
+The correctness principle for transactions tells us that every serial schedule will preserve consistency of the database state. But are there any other schedules that also are guaranteed to preserve consistency? There are, as the following example shows. In general, we say a schedule _S_ is _serializable_ if there is a serial schedule _S'_ such that for every initial database state, the effects of _S_ and _S'_ are the same.
+
+|**_Ti_**|**_T_**_2_|**_A_**|**_B_**|
+|---|---|---|---|
+|||`25`|`25`|
+|`READ(A,t)`||||
+|`t := t+100`||||
+|`WRITE(A,t)`|`READ(A,s)`|`125`||
+||`s := s*2`|||
+||`WRITE(A,s)`|`250`||
+|`READ(B,t)`||||
+|`t := t+100`||||
+|`WRITE(B,t)`|`READ(B,s)`||`125`|
+||`s := s*2`|||
+||`WRITE(B,s)`||`250`|
+
+
+
+Figure 18.5: A serializable, but not serial, schedule
+
+_18.1. SERIAL AND SERIALIZABLE SCHEDULES_
+
+
+Exam ple 18.3: Figure 18.5 shows a schedule of the transactions from Ex­ ample 18.1 that is serializable but not serial. In this schedule, Ta acts on _A_ after _T\_ does, but before Ti acts on _B._ However, we see that the effect of the two transactions scheduled in this manner is the same as for the serial schedule (Ti,T2) from Fig. 18.3. To convince ourselves of the truth of this statement, we must consider not only the effect from the database state _A_ = _B_ = 25, which we show in Fig. 18.5, but from any consistent database state. Since all consistent database states have _A — B_ = c for some constant c, it is not hard to deduce that in the schedule of Fig. 18.5, both _A_ and _B_ will be left with the value **2** (c + **100** ), and thus consistency is preserved from any consistent state.
+
+|T i|T2|_A_|_B_|
+|---|---|---|---|
+|||`25`|`25`|
+|`READ(A,t)`||||
+|`t := t+100`||||
+|`WRITE(A,t)`|`READ(A,s)`|`125`||
+||s`:=`s***2**|||
+||`WRITE(A,s)` `READ(B,s)`|`250`||
+||s := s***2**|||
+||`WRITE(B,s)`||`50`|
+|`READ(B,t)`||||
+|`t := t+100`||||
+|`WRITE(B,t)`|||`150`|
+
+
+
+Figure 18.6: A nonserializable schedule
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Parallel and Distributed Databases** - Introduction
+Eventually, iV **21** runs the stabilization operation, which it, like all nodes, does periodically. Now, _N = N2i, S = N 3 2 ,_ and _P_ = _N2<j._ The test of step (2) is satisfied, so _N2q_ becomes the successor of _N2i_ . At step (3), _S' —_ AT26. Since the predecessor of _N 2 6_ is nil, we make _N2\_ the predecessor of iV **26** - No data is shared at step (4), since all data at _N2q_ belongs there. The final state of the predecessor and successor links is shown in Fig. 20.20.
+
+At this time, the search for a key in the range 22-26 will reach _N2a_ and be answered properly. It is possible, under rare circumstances, that insertion of many new nodes will keep the network from becoming completely stable for a long time. In that case, the search for a key in the range 22-26 could continue running until the network finally does stabilize. However, as soon as the network does stablize, the search comes to an end. □
+
+There is still more to do, however. In terms of the running example, the finger table for iV **26** needs to be constructed, and other finger tables may now be wrong because they will link to _N 3 2_ in some cases when they should link to iV26. Thus, it is necessary that every node _N_ periodically checks its finger table. For each _i_ = 1,2,4, **8** ,..., node _N_ must execute Algorithm 20.21 with _j = N + i_ mod _2m._ When it gets back the node at which the network thinks such a key would be located, _N_ sets its finger-table entry for distance _i_ to that value.
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 17 Coping W ith System Failures** - Introduction
+1 We should not confuse the database state w ith the state of a transaction; the latter is values for the tran sactio n ’s local variables, not database elem ents.
+
+
+_CHAPTER 17. COPING WITH SYSTEM FAILURES_
+
+##### **Is the Correctness Principle Believable?**
+
+Given that a database transaction could be an ad-hoc modification com­ mand issued at a terminal, perhaps by someone who doesn’t understand the implicit constraints in the mind of the database designer, is it plausible to assume all transactions take the database from a consistent state to an­ other consistent state? Explicit constraints are enforced by the database, so any transaction that violates them will be rejected by the system and not change the database at all. As for implicit constraints, one cannot characterize them exactly under any circumstances. Our position, justi­ fying the correctness principle, is that if someone is given authority to modify the database, then they also have the authority to judge what the implicit constraints are.
+
+##### **17.1.4 The Primitive Operations of Transactions**
+
+Let us now consider in detail how transactions interact with the database. There are three address spaces that interact in important ways:
+
+1. The space of disk blocks holding the database elements.
+
+2. The virtual or main memory address space that is managed by the buffer manager.
+
+3. The local address space of the transaction.
+
+For a transaction to read a database element, that element must first be brought to a main-memory buffer or buffers, if it is not already there. Then, the contents of the buffer(s) can be read by the transaction into its own address space. Writing a new value for a database element by a transaction follows the reverse route. The new value is first created by the transaction in its own space. Then, this value is copied to the appropriate buffer(s).
+
+--- Nguồn: ullman_the_complete_book.md ---
+**Chapter 6 The Database Language SQL** - Introduction
+- ♦ _Transactions:_ SQL allows the programmer to group SQL statements into transactions, which may be committed or rolled back (aborted). Trans­ actions may be rolled back by the application in order to undo changes, or by the system in order to guarantee atomicity and isolation.
+
+- ♦ _Isolation Levels:_ SQL defines four isolation levels called, from most strin­ gent to least stringent: “serializable” (the transaction must appear to run either completely before or completely after each other transaction), “repeatable-read” (every tuple read in response to a query will reappear if the query is repeated), “read-committed” (only tuples written by transac­ tions that have already committed may be seen by this transaction), and “read-uncommitted” (no constraint on what the transaction may see).
+
+#### **6.8 References for Chapter 6**
+
+Many books on SQL programming are available. Some popular ones are [3], [5], and [7]. [6] is an early exposition of the SQL-99 standard.
+
+SQL was first defined in [4]. It was implemented as part of System R [1], one of the first generation of relational database prototypes.
+
+
+###### _6.8. REFERENCES FOR CHAPTER 6_
+
+There is a discussion of problems with this standard in the area of transac­ tions and cursors in [2].
+
+1. M. M. Astrahan et al., “System R: a relational approach to data manage­ ment,” _ACM Transactions on Database Systems_ 1:2, pp. 97-137, 1976.
+
+2. H. Berenson, P. A. Bernstein, J. N. Gray, J. Melton, E. O’Neil, and P. O’Neil, “A critique of ANSI SQL isolation levels,” _Proceedings of ACM SIGMOD Intl. Conf. on Management of Data,_ pp. 1-10, 1995.
+
+3. J. Celko, _SQL for Smarties,_ Morgan-Kaufmann, San Francisco, 2005.
+
+4. D. D. Chamberlin et al., “SEQUEL 2: a unified approach to data defini­ tion, manipulation, and control,” _IBM Journal of Research and Develop­ ment_ 20:6, pp. 560-575, 1976.
+
+5. C. J. Date and H. Darwen, _A Guide to the SQL Standard,_ Addison-Wesley, Reading, MA, 1997.
+
+6. P. Gulutzan and T. Pelzer, _SQL-99 Complete, Really,_ R&D Books, Law­ rence, KA, 1999.
+
+7. J. Melton and A. R. Simon, _Understanding the New SQL: A Complete Guide,_ Morgan-Kaufmann, San Francisco, 2006.
+
+
+Chỉ thị cho LLM: Hãy trả lời câu hỏi sau dựa hoàn toàn vào tài liệu trên (nếu tài liệu không đủ thông tin, hãy nói rõ). Câu hỏi: Giải thích khái niệm Eventual Consistency trong NoSQL
+==================================================
+

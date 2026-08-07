@@ -1,0 +1,17 @@
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Ignored data files
+data/
+chunks.json
+index.npz
+test_report_raw.txt
+llm_test_results.txt
+backend_log.txt
+
+# Node
+frontend/node_modules/
+frontend/dist/
+.DS_Store

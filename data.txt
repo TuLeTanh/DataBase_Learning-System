@@ -1,0 +1,7 @@
+# Bộ dữ liệu thô môn Cơ Sở Dữ Liệu
+Bộ dữ liệu gồm các slide bài giảng dạng Markdown. Do giới hạn về dung lượng và để giữ cho repository gọn nhẹ, thư mục `data/` không được đẩy lên GitHub.
+
+Bạn có thể tải thư mục `data` tại đường link sau:
+[Đường link tải dữ liệu sẽ được cập nhật tại đây - Vui lòng chèn link Google Drive/OneDrive của bạn vào đây]
+
+Sau khi tải về, hãy giải nén và đảm bảo thư mục `data` nằm ở thư mục gốc của dự án này, ngang hàng với file `README.md`.
