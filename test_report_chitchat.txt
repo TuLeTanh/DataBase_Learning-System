@@ -1,0 +1,108 @@
+==================================================
+PHẦN 1: MỞ RỘNG CHITCHAT BANK (14 CÂU)
+==================================================
+
+--- 1. Troll / Test ---
+User: 1+1 bằng mấy
+Bot: 1 + 1 bằng 2.
+
+User: Mày có thông minh không
+Bot: Haha, mình thông minh vừa phải thôi, nhưng vẫn đủ để hỗ trợ bạn về môn Cơ sở dữ liệu đấy! Có gì cần hỏi về môn học này không?
+
+
+--- 2. Than vãn ---
+User: Môn này khó vãi, học dở quá
+Bot: Đồng cảm với bạn, học môn mới luôn có chút khó khăn. Nhưng đừng lo, mình sẵn sàng hỗ trợ bạn bất cứ lúc nào! Bạn đang vướng mắc phần nào trong môn Cơ sở dữ liệu vậy? Hãy nói cho mình biết để mình có thể giúp bạn giải quyết nhé!
+
+User: Chán học ghê
+Bot: Ừm, mình hiểu cảm giác đó. Học môn Cơ sở dữ liệu có lúc cũng thấy áp lực thật. Bạn đang gặp khó khăn ở phần nào vậy? Mình sẵn sàng hỗ trợ bạn giải quyết những thắc mắc về môn học này!
+
+
+--- 3. Nghề nghiệp ---
+User: Học CSDL ra làm gì?
+Bot: Học Cơ sở dữ liệu (CSDL) ra làm gì? Đây là một câu hỏi rất thú vị và quan trọng đối với sinh viên đang theo học môn học này.
+
+Theo các đoạn trích từ tài liệu môn học, CSDL là một hệ thống quản lý và tổ chức dữ liệu, phục vụ nhiều đối tượng sử dụng khác nhau. Học CSDL sẽ trang bị cho sinh viên những kiến thức và kỹ năng cần thiết để:
+
+1. **Khai thác dữ liệu**: Sinh viên sẽ được trang bị các công cụ và kỹ năng để khai thác dữ liệu khi cần thiết, cho dù họ không chuyên về lĩnh vực tin học và CSDL. Điều này giúp họ có thể truy cập và sử dụng dữ liệu một cách hiệu quả, đáp ứng nhu cầu công việc hoặc nghiên cứu của mình.
+
+2. **Xây dựng ứng dụng**: Chuyên viên tin học có thể sử dụng kiến thức về CSDL để xây dựng các ứng dụng phục vụ cho các mục đích quản lý. Họ có thể thiết kế và phát triển các hệ thống quản lý dữ liệu, giúp tổ chức và doanh nghiệp cải thiện hiệu quả hoạt động, lưu trữ và phân tích dữ liệu một cách chuyên nghiệp.
+
+3. **Quản trị CSDL**: Học CSDL cũng giúp sinh viên hiểu rõ hơn về vai trò của quản trị CSDL. Họ sẽ học cách tổ chức, bảo mật, cấp quyền truy cập, sao lưu và phục hồi dữ liệu, cũng như giải quyết các tranh chấp dữ liệu. Đây là những kỹ năng quan trọng để đảm bảo an toàn và tính toàn vẹn của dữ liệu trong các hệ thống CSDL.
+
+Ngoài ra, học CSDL còn giúp sinh viên hiểu về các mô hình dữ liệu khác nhau, bao gồm mô hình mạng, mô hình thực thể mối kết hợp, và mô hình dữ liệu quan hệ. Họ sẽ học cách sử dụng các ngôn ngữ như SQL và ngôn ngữ tân từ để thao tác và truy vấn dữ liệu.
+
+Do đó, học CSDL sẽ cung cấp cho sinh viên một nền tảng vững chắc để quản lý và khai thác dữ liệu hiệu quả, giúp họ trở thành những chuyên gia trong lĩnh vực này, đáp ứng nhu cầu ngày càng tăng của các tổ chức và doanh nghiệp trong kỷ nguyên số hóa.
+
+User: Lương DBA bao nhiêu?
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+
+--- 4. Tổ chức lớp ---
+User: Thầy dạy môn này có dễ không?
+Bot: À, câu hỏi này hơi khó nhỉ! Mình chỉ là trợ lý học tập, nên không thể đánh giá thầy cô giáo được. Nhưng mình có thể giúp bạn giải đáp thắc mắc về môn Cơ sở dữ liệu đấy! Bạn có muốn hỏi về một chủ đề cụ thể nào không?
+
+User: Bao giờ thi?
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+
+--- 5. Rác ---
+User: asdkjaskjd
+Bot: Mình chưa hiểu rõ ý bạn, bạn có thể nói cụ thể hơn được không?
+
+Nếu bạn có câu hỏi về môn Cơ sở dữ liệu, mình sẵn sàng hỗ trợ bạn!
+
+User: 12312 30129
+Bot: Mình chưa hiểu rõ ý bạn, bạn có thể nói cụ thể hơn được không?
+
+Nào, quay lại với môn Cơ sở dữ liệu thôi nào! Có gì cần hỗ trợ không?
+
+
+--- 6. Chào / Tạm biệt ---
+User: Cảm ơn nha
+Bot: Không có gì! Chúc bạn học tốt môn Cơ sở dữ liệu nhé!
+
+User: Bye
+Bot: Tạm biệt bạn, chúc bạn học tốt môn Cơ sở dữ liệu nhé!
+
+
+--- 7. Nhờ giải chung chung ---
+User: Làm bài tập này hộ tao
+Bot: Ồ, bài tập về cơ sở dữ liệu nhỉ? Có thể cho mình biết bài tập cụ thể là gì không? Mình sẵn sàng hỗ trợ bạn!
+
+User: Giải giúp cái đề này
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+==================================================
+PHẦN 2: REGRESSION TEST 6 CÂU NGOÀI PHẠM VI (ACADEMIC)
+==================================================
+
+--- [REGRESSION 1] ---
+User: Làm sao để cài đặt MySQL trên Windows
+Kết quả: PASS
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+--- [REGRESSION 2] ---
+User: MongoDB lưu trữ dữ liệu dưới dạng nào?
+Kết quả: PASS
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+--- [REGRESSION 3] ---
+User: Làm thế nào để sử dụng phpMyAdmin quản lý database?
+Kết quả: PASS
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+--- [REGRESSION 4] ---
+User: Cấu hình Replica Set trong cơ sở dữ liệu phân tán
+Kết quả: PASS
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+--- [REGRESSION 5] ---
+User: Giải thích khái niệm Eventual Consistency trong NoSQL
+Kết quả: PASS
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+--- [REGRESSION 6] ---
+User: Cách tối ưu hóa index trên PostgreSQL
+Kết quả: PASS
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.

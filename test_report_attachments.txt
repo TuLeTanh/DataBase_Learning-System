@@ -1,0 +1,35 @@
+==================================================
+TEST 1: ĐÍNH KÈM 1 ẢNH (KHÔNG HỎI HOẶC CHUNG CHUNG)
+==================================================
+User: Xem giúp mình ảnh này với (Kèm file: dummy_image.jpg)
+Bot: Tôi đã nhận được file ảnh mà bạn đính kèm, tuy nhiên xin lưu ý rằng tôi hiện chưa có khả năng đọc hoặc xem nội dung bên trong file ảnh này.
+
+Về câu hỏi của bạn, tài liệu môn học hiện tại không đề cập đến vấn đề này. Tôi xin lỗi vì không thể cung cấp thông tin chi tiết về nội dung trong ảnh. Nếu bạn có thể cung cấp thêm thông tin hoặc mô tả về ảnh, tôi sẽ cố gắng hỗ trợ bạn tốt hơn.
+
+==================================================
+TEST 2: ĐÍNH KÈM PDF VÀ HỎI KÈM THEO
+==================================================
+User: Giải giúp tao bài trong PDF này. Tiện thể Khóa chính là gì? (Kèm file: de_bai.pdf)
+Bot: Tôi đã nhận được file PDF mà bạn đính kèm, tuy nhiên xin lưu ý rằng tôi hiện chưa có khả năng đọc hoặc xem nội dung bên trong file này.
+
+Về câu hỏi của bạn, tài liệu môn học có đề cập đến khái niệm "Khóa" trong chương 3, cụ thể là trong phần "Đại số quan hệ". Khóa được định nghĩa là một thuộc tính hoặc một tập hợp các thuộc tính trong một quan hệ, được sử dụng để xác định duy nhất một tuple (hàng) trong quan hệ đó. Khóa có vai trò quan trọng trong việc đảm bảo tính toàn vẹn và duy nhất của dữ liệu trong cơ sở dữ liệu.
+
+Tuy nhiên, tài liệu không cung cấp chi tiết về bài tập trong file PDF mà bạn đề cập. Nếu bạn có thể cung cấp thêm thông tin hoặc mô tả về bài tập, tôi sẽ cố gắng hỗ trợ bạn giải quyết vấn đề đó.
+
+==================================================
+TEST 5: KHÔNG HỞ LỖ HỔNG (REGRESSION)
+==================================================
+
+--- [REGRESSION 1] ---
+User: MongoDB lưu trữ dữ liệu dưới dạng nào?
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+Tài liệu tập trung vào các hệ quản trị cơ sở dữ liệu (DBMS) và mô hình quan hệ, nhưng không đề cập cụ thể đến MongoDB hoặc cách thức lưu trữ dữ liệu của nó. Nếu bạn muốn tìm hiểu về MongoDB và cách nó lưu trữ dữ liệu, bạn có thể tham khảo các nguồn tài liệu khác hoặc tài liệu chính thức của MongoDB.
+
+--- [REGRESSION 2] ---
+User: Cấu hình Replica Set trong cơ sở dữ liệu phân tán
+Bot: Tài liệu môn học hiện tại không đề cập đến vấn đề cấu hình Replica Set trong cơ sở dữ liệu phân tán.
+
+Tuy nhiên, tài liệu có đề cập đến các khái niệm liên quan đến cơ sở dữ liệu phân tán và các vấn đề về khóa và khóa phân tán. Cụ thể, trong chương 20, tài liệu thảo luận về các cơ sở dữ liệu song song và phân tán, bao gồm các chủ đề như khóa phân tán, các thuật toán khóa phân tán, và các chiến lược sao chép dữ liệu.
+
+Nếu bạn có câu hỏi cụ thể về Replica Set hoặc các khái niệm khác trong cơ sở dữ liệu phân tán, tôi có thể giúp bạn tìm hiểu thêm thông tin từ các nguồn khác hoặc tài liệu chuyên ngành.

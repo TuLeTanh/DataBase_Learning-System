@@ -4,6 +4,9 @@ from sentence_transformers import SentenceTransformer
 import cohere
 import os
 import sys
+from dotenv import load_dotenv
+
+load_dotenv()
 
 CHUNKS_FILE = 'chunks.json'
 INDEX_FILE = 'index.npz'
@@ -67,22 +70,123 @@ Hướng dẫn:
 """
     return prompt
 
-def answer_question(query):
-    results, no_relevant_context = search(query)
-    
-    if no_relevant_context:
-        # Nếu không vượt threshold thô, tự động trả lời không cần LLM
-        return "Tài liệu môn học hiện tại không đề cập đến vấn đề này.", no_relevant_context, ""
-    
-    prompt = build_prompt(query, results)
-    
+def format_history(raw_history):
+    formatted = []
+    for msg in raw_history:
+        role = "assistant" if msg.get("role") in ["bot", "assistant"] else "user"
+        content = msg.get("text") or msg.get("content") or ""
+        formatted.append({"role": role, "content": content})
+    return formatted
+
+def classify_intent(query, formatted_history):
+    if not formatted_history:
+        history_text = "No history."
+    else:
+        history_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in formatted_history])
+        
+    prompt = f"""You are an intent classifier for a Database course assistant.
+Given the conversation history and the user's latest query, classify the intent into ONE of these EXACT categories (respond with only one word):
+- CHITCHAT: Greetings, thanks, goodbyes, casual talk, complaining/emotions, career questions, exam schedule questions, asking bot to do homework blindly, trolls/jokes, OR random gibberish/meaningless text (like "asdkjaskjd").
+- ACADEMIC: Questions about database concepts, SQL, NoSQL, data models, or anything related to the course material.
+- FOLLOWUP: The user is referring to something in the immediate conversation history (e.g. "giải 5 câu trên cho t đi", "ý m là sao", "cái đó", "trả lời lại").
+
+History:
+{history_text}
+
+User Query: {query}
+
+Intent (CHITCHAT, ACADEMIC, or FOLLOWUP):"""
     try:
         response = client.chat(
             model="command-r-08-2024",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=500
+            max_tokens=20,
+            temperature=0.1
         )
-        # Truy xuất content text từ response (cấu trúc API V2 của Cohere)
+        intent = response.message.content[0].text.strip().upper()
+        if "CHITCHAT" in intent: return "CHITCHAT"
+        if "FOLLOWUP" in intent: return "FOLLOWUP"
+        return "ACADEMIC"
+    except Exception:
+        return "ACADEMIC"
+
+def answer_question(query, history=None, attachments=None):
+    if history is None:
+        history = []
+        
+    formatted_history = format_history(history)
+    intent = classify_intent(query, formatted_history)
+    
+    attachment_text = ""
+    if attachments and len(attachments) > 0:
+        file_names = [att["filename"] for att in attachments]
+        files_str = ", ".join(file_names)
+        attachment_text = f"\n\n(Hệ thống: Người dùng có đính kèm các file: [{files_str}]. Dù câu hỏi là gì, bạn BẮT BUỘC phải mở đầu câu trả lời bằng việc xác nhận đã nhận được file, nhưng thông báo rõ rằng bạn CHƯA CÓ KHẢ NĂNG đọc hay xem nội dung bên trong file/ảnh. Sau lời xác nhận đó, hãy trả lời câu hỏi của người dùng.)"
+    
+    if intent == "CHITCHAT":
+        chitchat_prompt = """Bạn là Trợ lý học Cơ sở dữ liệu thân thiện, gần gũi dành cho sinh viên. Hãy trả lời câu hỏi giao tiếp ngoài lề của người dùng theo các quy tắc sau:
+1. Troll/Test khả năng (vd: 1+1 bằng mấy, bạn là ai, bạn có thông minh không): Trả lời ngắn gọn, dí dỏm, rồi hướng người dùng quay lại hỏi về môn Cơ sở dữ liệu để bạn giúp đỡ.
+2. Than vãn về việc học (vd: khó quá, chán quá, mệt quá): Đồng cảm chân thành, ngắn gọn, không phán xét. Sau đó hỏi xem họ đang vướng mắc phần nào trong môn học để bạn hỗ trợ.
+3. Hỏi về nghề nghiệp/ngành nghề (vd: học CSDL làm gì, lương bao nhiêu): Trả lời khái quát về định hướng nghề nghiệp, TUYỆT ĐỐI KHÔNG bịa ra hoặc cung cấp số liệu cụ thể (như mức lương chính xác, tỷ lệ phần trăm).
+4. Thông tin tổ chức lớp học (vd: đề thi khó không, bao giờ thi, điểm danh): Trả lời rõ ràng rằng bạn chỉ hỗ trợ kiến thức môn học, không có thông tin tổ chức lớp, và hướng dẫn họ hỏi giảng viên.
+5. Ký tự vô nghĩa/rác (vd: asdkjaskjd): Trả lời lịch sự: "Mình chưa hiểu rõ ý bạn, bạn có thể nói cụ thể hơn được không?"
+6. Cảm ơn/Tạm biệt (vd: cảm ơn, bye): Đáp lễ ngắn gọn, tự nhiên.
+7. Nhờ giải bài chung chung (vd: làm bài tập này hộ tao, giải giúp cái đề): Hỏi lại yêu cầu cụ thể, nhắc họ cung cấp chi tiết bài tập là gì.
+
+Tuyệt đối giữ thái độ lịch sự, ngắn gọn và luôn mang định hướng hỗ trợ môn Cơ sở dữ liệu."""
+        
+        final_query = query + attachment_text
+        messages = [{"role": "system", "content": chitchat_prompt}] + formatted_history + [{"role": "user", "content": final_query}]
+        
+        try:
+            response = client.chat(
+                model="command-r-08-2024",
+                messages=messages,
+                max_tokens=1500
+            )
+            return response.message.content[0].text, False, ""
+        except Exception as e:
+            return f"ERROR: {str(e)}", False, ""
+            
+    results, no_relevant_context = search(query)
+    
+    if intent == "ACADEMIC" and no_relevant_context:
+        if attachment_text:
+            messages = [{"role": "user", "content": f"Câu hỏi: {query} {attachment_text}\n\nHướng dẫn bổ sung: Câu hỏi này nằm ngoài phạm vi tài liệu hiện tại, hãy nói thêm rằng 'Tài liệu môn học hiện tại không đề cập đến vấn đề này.'"}]
+            try:
+                response = client.chat(model="command-r-08-2024", messages=messages, max_tokens=1500)
+                return response.message.content[0].text, no_relevant_context, ""
+            except Exception as e:
+                pass
+        return "Tài liệu môn học hiện tại không đề cập đến vấn đề này.", no_relevant_context, ""
+    
+    if intent == "FOLLOWUP" and no_relevant_context:
+        prompt = query + attachment_text
+        messages = formatted_history + [{"role": "user", "content": prompt}]
+    else:
+        # Tái tạo prompt với attachment_text
+        context_text = "\n\n".join([f"--- Nguồn: {r['chunk']['source']} ---\n{r['chunk']['text']}" for r in results])
+        prompt = f"""Bạn là trợ lý học tập môn Cơ sở dữ liệu. Dưới đây là các đoạn trích từ tài liệu môn học:
+
+[CÁC ĐOẠN TRÍCH TÀI LIỆU]
+{context_text}
+[KẾT THÚC CÁC ĐOẠN TRÍCH]
+
+Câu hỏi của sinh viên: {query} {attachment_text}
+
+Hướng dẫn:
+1. Đọc kỹ các đoạn trích trên. Nếu các đoạn trích hoàn toàn không liên quan đến chủ đề câu hỏi (khác khái niệm, khác lĩnh vực, ví dụ hỏi về NoSQL/MongoDB nhưng đoạn trích chỉ nói về SQL quan hệ), hãy trả lời ngay ở đầu câu: "Tài liệu môn học hiện tại không đề cập đến vấn đề này." Tuyệt đối không được cố suy diễn hay chém gió ngoài tài liệu.
+2. Nếu các đoạn trích có nói về khái niệm trong câu hỏi, hãy dựa vào định nghĩa, tính chất đã nêu trong đoạn trích để suy luận hợp lý và trả lời trực tiếp câu hỏi (ngay cả khi đoạn trích không chứa câu trả lời y hệt từng chữ). Bạn được phép suy luận trong phạm vi khái niệm đã có trong tài liệu.
+3. Chỉ nói "không đề cập" khi context thực sự không có bất kỳ thông tin nào liên quan đến khái niệm được hỏi.
+"""
+        messages = formatted_history + [{"role": "user", "content": prompt}]
+        
+    try:
+        response = client.chat(
+            model="command-r-08-2024",
+            messages=messages,
+            max_tokens=1500
+        )
         answer_text = response.message.content[0].text
         return answer_text, no_relevant_context, prompt
     except Exception as e:
@@ -112,7 +216,8 @@ def main():
         
         for q, in_doc in queries:
             print(f"Testing: {q}")
-            answer, no_ctx, prompt = answer_question(q)
+            # Mock history for tests
+            answer, no_ctx, prompt = answer_question(q, history=[])
             
             # Nếu câu có kết quả trả về bị lỗi Exception từ Cohere, log ra luôn
             if answer.startswith("ERROR:"):
