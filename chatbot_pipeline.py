@@ -118,10 +118,33 @@ def answer_question(query, history=None, attachments=None):
     intent = classify_intent(query, formatted_history)
     
     attachment_text = ""
+    has_extracted_text = False
+    
     if attachments and len(attachments) > 0:
-        file_names = [att["filename"] for att in attachments]
+        file_names = []
+        extracted_contents = []
+        unreadable_files = []
+        
+        for att in attachments:
+            file_names.append(att["filename"])
+            if "extracted_text" in att and att["extracted_text"]:
+                extracted_contents.append(f"--- Nội dung file đính kèm: {att['filename']} ---\n{att['extracted_text']}")
+                has_extracted_text = True
+            else:
+                unreadable_files.append(att["filename"])
+                
         files_str = ", ".join(file_names)
-        attachment_text = f"\n\n(Hệ thống: Người dùng có đính kèm các file: [{files_str}]. Dù câu hỏi là gì, bạn BẮT BUỘC phải mở đầu câu trả lời bằng việc xác nhận đã nhận được file, nhưng thông báo rõ rằng bạn CHƯA CÓ KHẢ NĂNG đọc hay xem nội dung bên trong file/ảnh. Sau lời xác nhận đó, hãy trả lời câu hỏi của người dùng.)"
+        attachment_text = f"\n\n(Hệ thống: Người dùng có đính kèm các file: [{files_str}]. "
+        
+        if unreadable_files:
+            unreadable_str = ", ".join(unreadable_files)
+            attachment_text += f"Tuy nhiên, đối với các file sau: [{unreadable_str}], hệ thống không trích xuất được nội dung văn bản. Nếu người dùng hỏi về nội dung các file này, hãy trả lời đúng nguyên văn: 'Không trích xuất được nội dung văn bản từ file này.' Tuyệt đối không suy diễn thêm lý do (như file là ảnh, sơ đồ, hay bị mã hóa). "
+            
+        if extracted_contents:
+            attachment_text += "Đối với các file trích xuất được văn bản, bạn hãy ĐỌC VÀ SỬ DỤNG nội dung đính kèm dưới đây để trả lời câu hỏi:\n\n"
+            attachment_text += "\n\n".join(extracted_contents)
+            
+        attachment_text += ")" 
     
     if intent == "CHITCHAT":
         chitchat_prompt = """Bạn là Trợ lý học Cơ sở dữ liệu thân thiện, gần gũi dành cho sinh viên. Hãy trả lời câu hỏi giao tiếp ngoài lề của người dùng theo các quy tắc sau:
@@ -151,14 +174,15 @@ Tuyệt đối giữ thái độ lịch sự, ngắn gọn và luôn mang địn
     results, no_relevant_context = search(query)
     
     if intent == "ACADEMIC" and no_relevant_context:
-        if attachment_text:
-            messages = [{"role": "user", "content": f"Câu hỏi: {query} {attachment_text}\n\nHướng dẫn bổ sung: Câu hỏi này nằm ngoài phạm vi tài liệu hiện tại, hãy nói thêm rằng 'Tài liệu môn học hiện tại không đề cập đến vấn đề này.'"}]
-            try:
-                response = client.chat(model="command-r-08-2024", messages=messages, max_tokens=1500)
-                return response.message.content[0].text, no_relevant_context, ""
-            except Exception as e:
-                pass
-        return "Tài liệu môn học hiện tại không đề cập đến vấn đề này.", no_relevant_context, ""
+        if not has_extracted_text:
+            if attachment_text:
+                messages = [{"role": "user", "content": f"Câu hỏi: {query} {attachment_text}\n\nHướng dẫn bổ sung: Câu hỏi này nằm ngoài phạm vi tài liệu hiện tại, hãy nói thêm rằng 'Tài liệu môn học hiện tại không đề cập đến vấn đề này.'"}]
+                try:
+                    response = client.chat(model="command-r-08-2024", messages=messages, max_tokens=1500)
+                    return response.message.content[0].text, no_relevant_context, ""
+                except Exception as e:
+                    pass
+            return "Tài liệu môn học hiện tại không đề cập đến vấn đề này.", no_relevant_context, ""
     
     if intent == "FOLLOWUP" and no_relevant_context:
         prompt = query + attachment_text
@@ -166,6 +190,11 @@ Tuyệt đối giữ thái độ lịch sự, ngắn gọn và luôn mang địn
     else:
         # Tái tạo prompt với attachment_text
         context_text = "\n\n".join([f"--- Nguồn: {r['chunk']['source']} ---\n{r['chunk']['text']}" for r in results])
+        
+        rule_1 = '1. Đọc kỹ các đoạn trích trên. Nếu các đoạn trích hoàn toàn không liên quan đến chủ đề câu hỏi (khác khái niệm, khác lĩnh vực, ví dụ hỏi về NoSQL/MongoDB nhưng đoạn trích chỉ nói về SQL quan hệ), hãy trả lời ngay ở đầu câu: "Tài liệu môn học hiện tại không đề cập đến vấn đề này." và DỪNG LẠI, tuyệt đối không giải thích thêm hay cung cấp kiến thức ngoài tài liệu. Nếu đoạn trích chứa đúng khái niệm cốt lõi được hỏi (không chỉ liên quan mơ hồ), bạn được phép diễn giải, tổng hợp, hoặc tạo ví dụ minh hoạ dựa trên chính nội dung trong đoạn trích đó — không được thêm thông tin, ví dụ, hay khái niệm nào không xuất phát từ đoạn trích. Nếu đoạn trích không đủ để tạo ví dụ cụ thể, hãy nói rõ giới hạn đó thay vì tự bịa thêm.'
+        if has_extracted_text:
+            rule_1 = '1. Đọc kỹ các đoạn trích và nội dung file đính kèm. Bạn ĐƯỢC PHÉP dựa vào nội dung file đính kèm để trả lời câu hỏi kể cả khi tài liệu môn học không đề cập.'
+
         prompt = f"""Bạn là trợ lý học tập môn Cơ sở dữ liệu. Dưới đây là các đoạn trích từ tài liệu môn học:
 
 [CÁC ĐOẠN TRÍCH TÀI LIỆU]
@@ -175,9 +204,10 @@ Tuyệt đối giữ thái độ lịch sự, ngắn gọn và luôn mang địn
 Câu hỏi của sinh viên: {query} {attachment_text}
 
 Hướng dẫn:
-1. Đọc kỹ các đoạn trích trên. Nếu các đoạn trích hoàn toàn không liên quan đến chủ đề câu hỏi (khác khái niệm, khác lĩnh vực, ví dụ hỏi về NoSQL/MongoDB nhưng đoạn trích chỉ nói về SQL quan hệ), hãy trả lời ngay ở đầu câu: "Tài liệu môn học hiện tại không đề cập đến vấn đề này." Tuyệt đối không được cố suy diễn hay chém gió ngoài tài liệu.
-2. Nếu các đoạn trích có nói về khái niệm trong câu hỏi, hãy dựa vào định nghĩa, tính chất đã nêu trong đoạn trích để suy luận hợp lý và trả lời trực tiếp câu hỏi (ngay cả khi đoạn trích không chứa câu trả lời y hệt từng chữ). Bạn được phép suy luận trong phạm vi khái niệm đã có trong tài liệu.
-3. Chỉ nói "không đề cập" khi context thực sự không có bất kỳ thông tin nào liên quan đến khái niệm được hỏi.
+{rule_1}
+2. Nếu các đoạn trích hoặc file đính kèm có nói về khái niệm trong câu hỏi, hãy dựa vào định nghĩa, tính chất để suy luận hợp lý và trả lời trực tiếp câu hỏi. Bạn được phép suy luận trong phạm vi khái niệm đã có trong tài liệu và đính kèm.
+3. Chỉ nói "không đề cập" khi context và đính kèm thực sự không có bất kỳ thông tin nào liên quan đến khái niệm được hỏi.
+4. Đoạn trích có thể bằng tiếng Anh hoặc tiếng Việt — coi cả hai đều là nguồn hợp lệ như nhau, không được bỏ qua đoạn trích chỉ vì nó bằng tiếng Anh. Nếu đoạn trích tiếng Anh chứa ví dụ hoặc thông tin cần thiết, hãy tự động dịch sang tiếng Việt một cách tự nhiên để trả lời.
 """
         messages = formatted_history + [{"role": "user", "content": prompt}]
         

@@ -1,4 +1,6 @@
 import asyncio
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 import time
 from playwright.async_api import async_playwright
 

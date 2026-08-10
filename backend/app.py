@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from chatbot_pipeline import answer_question
 import logging
 from backend import db
+from backend.file_extractor import extract_text_from_file
 
 app = FastAPI(title="RAG CSDL Chatbot API")
 
@@ -102,6 +103,11 @@ async def ask_question_api(
                     thumb_b64 = create_thumbnail_base64(file_bytes)
                     if thumb_b64:
                         attachment_info["thumbnail"] = thumb_b64
+                else:
+                    # Extract text for non-image files
+                    extracted_text = extract_text_from_file(file_bytes, filename, content_type)
+                    if extracted_text:
+                        attachment_info["extracted_text"] = extracted_text
                 
                 processed_attachments.append(attachment_info)
         
