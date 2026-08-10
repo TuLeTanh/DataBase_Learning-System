@@ -1,10 +1,37 @@
 import { useState, useEffect, useRef } from 'react'
+import vi from './locales/vi.json'
+import en from './locales/en.json'
+
+const locales = { vi, en };
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 function App() {
   const [sessions, setSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
+
+  // Settings state
+  const [uiLang, setUiLang] = useState(() => localStorage.getItem('uiLang') || 'vi');
+  const [accentColor, setAccentColor] = useState(() => localStorage.getItem('accentColor') || 'blue');
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem('fontSize') || 'medium');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('uiLang', uiLang);
+    localStorage.setItem('accentColor', accentColor);
+    localStorage.setItem('fontSize', fontSize);
+    document.documentElement.setAttribute('data-accent', accentColor);
+    document.documentElement.setAttribute('data-fontsize', fontSize);
+  }, [uiLang, accentColor, fontSize]);
+
+  const t = (key, params = {}) => {
+    let str = locales[uiLang][key] || locales['vi'][key] || key;
+    Object.keys(params).forEach(p => {
+      str = str.replace(`{${p}}`, params[p]);
+    });
+    return str;
+  };
+
   
   // Sidebar state
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(() => {
@@ -104,7 +131,7 @@ function App() {
 
   const deleteSession = async (sessionId, e) => {
     e.stopPropagation();
-    if (!window.confirm("Bạn có chắc chắn muốn xóa cuộc hội thoại này?")) {
+    if (!window.confirm(t("alert.deleteConfirm"))) {
       return;
     }
     
@@ -130,14 +157,14 @@ function App() {
     setIsAttachmentMenuOpen(false);
     
     if (selectedFiles.length + files.length > 3) {
-      alert("Chỉ được đính kèm tối đa 3 file.");
+      alert(t("alert.maxFiles"));
       return;
     }
     
     const validFiles = [];
     for (let file of files) {
       if (file.size > 10 * 1024 * 1024) {
-        alert(`File ${file.name} vượt quá giới hạn 10MB.`);
+        alert(t("alert.maxSize", { name: file.name }));
         continue;
       }
       validFiles.push(file);
@@ -186,7 +213,7 @@ function App() {
     if ((!trimmedInput && selectedFiles.length === 0) || isLoading || !activeSessionId) return;
 
     if (serverStatus !== "ok") {
-      alert("Không thể kết nối với server backend.");
+      alert(t("alert.noConnection"));
       return;
     }
 
@@ -219,7 +246,7 @@ function App() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Có lỗi từ máy chủ");
+        throw new Error(errorData.detail || t("alert.serverError"));
       }
 
       const data = await response.json();
@@ -229,7 +256,7 @@ function App() {
         setSessions(prev => prev.map(s => s.id === activeSessionId ? { ...s, title: data.new_title } : s));
       }
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'bot', text: `[Lỗi]: ${error.message}. Vui lòng thử lại sau.` }]);
+      setMessages(prev => [...prev, { role: 'bot', text: t("error.prefix", { error: error.message }) }]);
     } finally {
       setIsLoading(false);
     }
@@ -254,11 +281,11 @@ function App() {
       {/* Sidebar */}
       <div className={`${isSidebarExpanded ? 'w-[280px]' : 'w-20'} bg-white/5 backdrop-blur-3xl border-r border-white/10 flex flex-col z-20 transition-all duration-300 ease-out shrink-0 relative shadow-[4px_0_24px_rgba(0,0,0,0.5)]`}>
         <div className={`p-5 border-b border-white/10 flex items-center ${isSidebarExpanded ? 'justify-between' : 'justify-center'}`}>
-          {isSidebarExpanded && <h2 className="font-semibold text-lg whitespace-nowrap overflow-hidden text-white/90 tracking-wide">CSDL Chat</h2>}
+          {isSidebarExpanded && <h2 className="font-semibold text-lg whitespace-nowrap overflow-hidden text-white/90 tracking-wide">{t("app.title")}</h2>}
           <button 
             onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
             className="text-white/60 hover:text-white hover:bg-white/10 transition-all p-1.5 rounded-xl hover:scale-105 active:scale-95 focus-ring"
-            title={isSidebarExpanded ? "Thu gọn sidebar" : "Mở rộng sidebar"}
+            title={isSidebarExpanded ? t("sidebar.collapse") : t("sidebar.expand")}
           >
             {isSidebarExpanded ? (
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -272,10 +299,10 @@ function App() {
           <button 
             onClick={createNewSession}
             className={`flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all font-medium shadow-sm border border-white/5 hover:scale-[1.02] active:scale-[0.98] focus-ring group ${isSidebarExpanded ? 'w-full py-3 px-4' : 'w-12 h-12 p-3 rounded-2xl'}`}
-            title="Tạo cuộc hội thoại mới"
+            title={t("sidebar.newChat")}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-blue-400 group-hover:text-blue-300 transition-colors"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            {isSidebarExpanded && <span className="whitespace-nowrap overflow-hidden">New chat</span>}
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-accent-400 group-hover:text-accent-300 transition-colors"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            {isSidebarExpanded && <span className="whitespace-nowrap overflow-hidden">{t("sidebar.newChatLabel")}</span>}
           </button>
         </div>
         
@@ -287,19 +314,19 @@ function App() {
                 onClick={() => selectSession(session.id)}
                 className={`group animate-fade-up flex items-center justify-between px-3 py-3 rounded-xl cursor-pointer transition-all duration-300 focus-ring ${
                   activeSessionId === session.id 
-                    ? 'bg-blue-600/20 text-blue-100 border border-blue-500/30' 
+                    ? 'bg-accent-600/20 text-accent-100 border border-accent-500/30' 
                     : 'text-white/60 border border-transparent hover:bg-white/5 hover:text-white hover:border-white/10 hover:scale-[0.99]'
                 }`}
                 style={{ animationDelay: `${idx * 40}ms` }}
               >
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 ${activeSessionId === session.id ? 'text-blue-400' : ''}`}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 ${activeSessionId === session.id ? 'text-accent-400' : ''}`}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                   <span className="truncate text-sm font-medium">{session.title}</span>
                 </div>
                 <button 
                   onClick={(e) => deleteSession(session.id, e)}
                   className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-red-400 transition-all shrink-0 p-1 rounded-md hover:bg-white/10"
-                  title="Xoá cuộc hội thoại"
+                  title={t("sidebar.deleteChat")}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 </button>
@@ -310,15 +337,37 @@ function App() {
               <button 
                 onClick={() => setIsSidebarExpanded(true)}
                 className="text-white/60 hover:text-white transition-all p-3 rounded-xl hover:bg-white/10 hover:scale-[1.05] active:scale-[0.95]"
-                title="Danh sách hội thoại"
+                title={t("sidebar.chatList")}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
               </button>
             </div>
           )}
           {isSidebarExpanded && sessions.length === 0 && (
-            <div className="text-white/40 text-sm text-center py-6 animate-fade-up">Chưa có cuộc hội thoại nào</div>
+            <div className="text-white/40 text-sm text-center py-6 animate-fade-up">{t("sidebar.empty")}</div>
           )}
+        </div>
+
+        <div className="mt-auto px-4 py-3 border-t border-white/10 flex flex-col gap-2 shrink-0">
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            className={`flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/10 transition-all focus-ring group ${!isSidebarExpanded ? 'justify-center' : ''}`}
+            title={!isSidebarExpanded ? t("settings.title") : ""}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/60 group-hover:text-white transition-colors shrink-0">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            {isSidebarExpanded && <span className="font-medium text-white/80 group-hover:text-white transition-colors">{t("settings.title")}</span>}
+          </button>
+          
+          {/* Avatar Dummy */}
+          <div className={`flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-all cursor-pointer ${!isSidebarExpanded ? 'justify-center' : ''}`}>
+             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accent-500 to-purple-500 flex items-center justify-center shrink-0 border border-white/20">
+               <span className="text-sm font-bold text-white shadow-sm">U</span>
+             </div>
+             {isSidebarExpanded && <span className="font-medium text-white/90 truncate">User</span>}
+          </div>
         </div>
       </div>
 
@@ -328,12 +377,12 @@ function App() {
         {/* Header (Backdrop over the chat area) */}
         <header className="absolute top-0 inset-x-0 bg-[#020617]/60 backdrop-blur-xl border-b border-white/5 py-4 px-6 md:px-8 flex justify-between items-center z-10 shrink-0">
           <div>
-            <h1 className="text-xl font-medium tracking-wide text-white/90">Trợ lý học Cơ sở dữ liệu</h1>
+            <h1 className="text-xl font-medium tracking-wide text-white/90">{t("app.headerTitle")}</h1>
           </div>
           <div className="flex items-center gap-3 text-sm font-medium">
-            {serverStatus === 'checking...' && <span className="text-yellow-400/80 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-400/80 animate-pulse"></div>Đang kiểm tra...</span>}
-            {serverStatus === 'ok' && <span className="text-emerald-400/90 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-400/90"></div>Trực tuyến</span>}
-            {serverStatus === 'error' && <span className="text-red-400/90 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-400/90"></div>Mất kết nối</span>}
+            {serverStatus === 'checking...' && <span className="text-yellow-400/80 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-400/80 animate-pulse"></div>{t("server.checking")}</span>}
+            {serverStatus === 'ok' && <span className="text-emerald-400/90 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-400/90"></div>{t("server.online")}</span>}
+            {serverStatus === 'error' && <span className="text-red-400/90 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-400/90"></div>{t("server.offline")}</span>}
           </div>
         </header>
 
@@ -341,11 +390,11 @@ function App() {
         <main className="flex-1 overflow-y-auto px-4 md:px-12 lg:px-24 pt-24 pb-4 flex flex-col gap-8 scrollbar-thin scroll-smooth relative z-0">
           {messages.length === 0 && !isLoading && (
             <div className="m-auto flex flex-col items-center justify-center animate-fade-up text-center max-w-md">
-              <div className="w-20 h-20 mb-6 bg-gradient-to-tr from-blue-600/30 to-purple-500/30 rounded-3xl flex items-center justify-center border border-white/10 shadow-[0_0_40px_rgba(37,99,235,0.2)]">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400"><path d="M12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+              <div className="w-20 h-20 mb-6 bg-gradient-to-tr from-accent-600/30 to-purple-500/30 rounded-3xl flex items-center justify-center border border-white/10 shadow-[0_0_40px_rgba(37,99,235,0.2)]">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent-400"><path d="M12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2Z"></path><path d="m9 12 2 2 4-4"></path></svg>
               </div>
-              <h3 className="text-2xl font-medium text-white mb-2">Hôm nay bạn muốn hỏi gì?</h3>
-              <p className="text-white/50 text-sm leading-relaxed">Hãy tải lên tài liệu học tập hoặc đặt câu hỏi về Cơ sở dữ liệu để bắt đầu nhé.</p>
+              <h3 className="text-2xl font-medium text-white mb-2">{t("chat.emptyTitle")}</h3>
+              <p className="text-white/50 text-sm leading-relaxed">{t("chat.emptyDesc")}</p>
             </div>
           )}
 
@@ -353,12 +402,12 @@ function App() {
             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-up group`}>
               <div className={`p-[1px] rounded-[28px] max-w-[85%] md:max-w-[75%] shadow-lg ${
                 msg.role === 'user' 
-                  ? 'bg-gradient-to-b from-blue-500/50 to-blue-600/20 rounded-br-sm' 
+                  ? 'bg-gradient-to-b from-accent-500/50 to-accent-600/20 rounded-br-sm' 
                   : 'bg-gradient-to-b from-white/10 to-transparent rounded-bl-sm'
               }`}>
                 <div className={`whitespace-pre-wrap text-[15px] leading-relaxed backdrop-blur-md px-5 py-4 ${
                   msg.role === 'user' 
-                    ? 'bg-blue-600/80 text-white border border-blue-500/30 rounded-[27px] rounded-br-[3px]' 
+                    ? 'bg-accent-600/80 text-white border border-accent-500/30 rounded-[27px] rounded-br-[3px]' 
                     : 'bg-white/5 text-slate-200 border border-white/5 rounded-[27px] rounded-bl-[3px]'
                 }`}>
                   {msg.attachments && msg.attachments.length > 0 && (
@@ -403,7 +452,7 @@ function App() {
         <footer className="bg-transparent p-4 md:p-6 shrink-0 relative z-10 w-full flex flex-col items-center">
           <div className="w-full max-w-4xl p-[1px] bg-gradient-to-b from-white/15 to-white/5 rounded-[32px] shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
             <div 
-              className="w-full bg-[#0B101E]/80 backdrop-blur-2xl border border-white/10 rounded-[31px] transition-all focus-within:bg-[#0B101E]/95 focus-within:border-white/20 focus-within:ring-4 focus-within:ring-blue-500/10 cursor-text flex flex-col"
+              className="w-full bg-[#0B101E]/80 backdrop-blur-2xl border border-white/10 rounded-[31px] transition-all focus-within:bg-[#0B101E]/95 focus-within:border-white/20 focus-within:ring-4 focus-within:ring-accent-500/10 cursor-text flex flex-col"
               onClick={() => document.getElementById('chat-input').focus()}
               onPaste={handlePaste}
             >
@@ -425,7 +474,7 @@ function App() {
                         <button 
                           onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
                           className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all focus-ring shadow-sm hover:scale-110 active:scale-95"
-                          title="Xóa"
+                          title={t("file.delete")}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
@@ -440,7 +489,7 @@ function App() {
                 id="chat-input"
                 className="w-full bg-transparent border-none focus:ring-0 resize-none px-5 py-4 max-h-40 shadow-none text-[15px] text-white placeholder:text-white/40 outline-none leading-relaxed"
                 rows={1}
-                placeholder="Nhập câu hỏi của bạn (Shift+Enter để xuống dòng)..."
+                placeholder={t("input.placeholder")}
                 value={input}
                 onChange={handleInput}
                 onKeyDown={handleKeyDown}
@@ -454,7 +503,7 @@ function App() {
                   <button 
                     onClick={(e) => { e.stopPropagation(); setIsAttachmentMenuOpen(!isAttachmentMenuOpen); }}
                     className="w-10 h-10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all shrink-0 hover:scale-[1.05] active:scale-[0.95] focus-ring"
-                    title="Đính kèm file"
+                    title={t("input.attach")}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   </button>
@@ -485,10 +534,10 @@ function App() {
                   onClick={(e) => { e.stopPropagation(); handleSend(); }}
                   disabled={isLoading || (!input.trim() && selectedFiles.length === 0) || serverStatus !== 'ok'}
                   className="h-10 pl-4 pr-1 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:opacity-50 text-white rounded-full flex items-center gap-2 transition-all hover:scale-105 active:scale-95 focus-ring group"
-                  title="Gửi tin nhắn"
+                  title={t("input.sendTooltip")}
                 >
-                  <span className="text-sm font-medium tracking-wide">Gửi</span>
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center group-hover:bg-blue-500 group-disabled:bg-white/20 transition-colors">
+                  <span className="text-sm font-medium tracking-wide">{t("input.send")}</span>
+                  <div className="w-8 h-8 bg-accent-600 rounded-full flex items-center justify-center group-hover:bg-accent-500 group-disabled:bg-white/20 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transform group-hover:translate-x-[2px] group-hover:-translate-y-[2px] transition-transform"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                   </div>
                 </button>
@@ -500,6 +549,101 @@ function App() {
           </div>
         </footer>
       </div>
+
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-up">
+          <div className="p-[1px] bg-gradient-to-b from-white/20 to-white/5 rounded-3xl shadow-2xl w-full max-w-md mx-4">
+            <div className="bg-[#0B101E]/95 backdrop-blur-2xl border border-white/10 rounded-[31px] p-6 flex flex-col gap-6">
+              
+              <div className="flex justify-between items-center border-b border-white/10 pb-4">
+                <h2 className="text-xl font-semibold text-white">{t("settings.title")}</h2>
+                <button 
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="text-white/50 hover:text-white hover:bg-white/10 p-2 rounded-xl transition-all active:scale-95 focus-ring"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+              </div>
+
+              {/* Theme / Accent Color */}
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-medium text-white/70">{t("settings.theme")}</label>
+                <div className="flex gap-3">
+                  {['blue', 'purple', 'emerald'].map(c => (
+                    <button
+                      key={c}
+                      onClick={() => setAccentColor(c)}
+                      className={`w-10 h-10 rounded-full transition-all flex items-center justify-center focus-ring ${c === 'blue' ? 'bg-blue-500' : c === 'purple' ? 'bg-purple-500' : 'bg-emerald-500'} ${accentColor === c ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0B101E] scale-110' : 'opacity-70 hover:opacity-100 hover:scale-105'}`}
+                    >
+                      {accentColor === c && <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Language */}
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-medium text-white/70">{t("settings.language")}</label>
+                <select 
+                  value={uiLang}
+                  onChange={(e) => setUiLang(e.target.value)}
+                  className="bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white/90 outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500/50 appearance-none cursor-pointer"
+                >
+                  <option value="vi">Tiếng Việt</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+
+              {/* Font Size */}
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-medium text-white/70">{t("settings.fontSize")}</label>
+                <div className="flex bg-black/40 border border-white/10 rounded-xl p-1">
+                  {['small', 'medium', 'large'].map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setFontSize(s)}
+                      className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all focus-ring ${fontSize === s ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white/80'}`}
+                    >
+                      {s === 'small' ? t("settings.fontSizeSmall") : s === 'medium' ? t("settings.fontSizeMedium") : t("settings.fontSizeLarge")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Danger Zone */}
+              <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
+                <label className="text-sm font-medium text-red-400">{t("settings.dangerZone")}</label>
+                <button
+                  onClick={async () => {
+                    if (window.confirm(t("settings.deleteAllConfirm"))) {
+                      for (let s of sessions) {
+                        await fetch(`${API_BASE_URL}/api/sessions/${s.id}`, { method: "DELETE" });
+                      }
+                      setSessions([]);
+                      setActiveSessionId(null);
+                      setMessages([]);
+                      setIsSettingsOpen(false);
+                      const res = await fetch(`${API_BASE_URL}/api/sessions`, { method: "POST" });
+                      const data = await res.json();
+                      setSessions([{ id: data.session_id, title: "New Chat", created_at: new Date().toISOString() }]);
+                      setActiveSessionId(data.session_id);
+                      setMessages([{ role: 'bot', text: 'Chào bạn, mình là Trợ lý học Cơ sở dữ liệu. Mình có thể giúp gì cho bạn hôm nay?' }]);
+                    }
+                  }}
+                  className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/30 rounded-xl transition-all font-medium focus-ring"
+                >
+                  {t("settings.deleteAll")}
+                </button>
+              </div>
+              
+              <div className="text-center text-xs text-white/30 pt-2 font-medium">
+                {t("app.version")}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
