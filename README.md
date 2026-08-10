@@ -33,12 +33,13 @@ python build_index.py
 Quá trình này sẽ tạo ra `chunks.json` (dữ liệu văn bản) và `index.npz` (vector embeddings).
 
 ### 2. Chạy Backend (FastAPI)
-Yêu cầu: Có tài khoản Cohere và API Key.
+Yêu cầu: Có tài khoản Cohere và API Key (được cấu hình trong file `.env` tại thư mục gốc).
+Môi trường Python (venv) đã được tách riêng sang thư mục `D:\csdl-chatbot-venv\venv` để tiết kiệm dung lượng ổ C.
+
 ```bash
 # Môi trường Windows (Powershell)
 $env:PYTHONIOENCODING="utf-8"
-$env:COHERE_API_KEY="<API_KEY_CỦA_BẠN>"
-uvicorn backend.app:app --port 8000 --reload
+& "D:\csdl-chatbot-venv\venv\Scripts\python.exe" -m uvicorn backend.app:app --port 8000 --reload
 ```
 Server sẽ khởi chạy tại `http://localhost:8000`.
 
