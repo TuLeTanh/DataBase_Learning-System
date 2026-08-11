@@ -7,8 +7,13 @@ import pytesseract
 from PIL import Image
 import os
 
-# Thêm đường dẫn poppler vào env hoặc truyền trực tiếp, pytesseract tesseract_cmd
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# Đường dẫn Tesseract từ Scoop (cài đặt ở User-space, không cần UAC)
+tesseract_path = os.path.expanduser(r'~\scoop\shims\tesseract.exe')
+if os.path.exists(tesseract_path):
+    pytesseract.pytesseract.tesseract_cmd = tesseract_path
+else:
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
 os.environ['TESSDATA_PREFIX'] = r'D:\All Code\New folder\RAG_CSDL\tessdata'
 POPPLER_PATH = r'D:\All Code\New folder\RAG_CSDL\poppler\poppler-24.07.0\Library\bin'
 
