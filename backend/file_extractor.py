@@ -2,6 +2,15 @@ import io
 import logging
 from docx import Document
 from pypdf import PdfReader
+import pdf2image
+import pytesseract
+from PIL import Image
+import os
+
+# Thêm đường dẫn poppler vào env hoặc truyền trực tiếp, pytesseract tesseract_cmd
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+os.environ['TESSDATA_PREFIX'] = r'D:\All Code\New folder\RAG_CSDL\tessdata'
+POPPLER_PATH = r'D:\All Code\New folder\RAG_CSDL\poppler\poppler-24.07.0\Library\bin'
 
 MAX_EXTRACT_CHARS = 100000  # Giới hạn 100,000 ký tự cho toàn bộ text trích xuất (~25k tokens)
 
@@ -23,7 +32,7 @@ def extract_text_from_file(file_bytes: bytes, filename: str, content_type: str) 
             doc = Document(io.BytesIO(file_bytes))
             paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
             text = "\n".join(paragraphs)
-                    # PDF
+        # PDF
         elif ext == 'pdf' or content_type == 'application/pdf':
             reader = PdfReader(io.BytesIO(file_bytes))
             pages_text = []
@@ -33,8 +42,29 @@ def extract_text_from_file(file_bytes: bytes, filename: str, content_type: str) 
                     pages_text.append(page_text.strip())
             text = "\n\n--- Trang tiếp theo ---\n\n".join(pages_text)
             
+            # PDF Fallback: Nếu không có text, dùng pdf2image + pytesseract
+            if not text.strip():
+                try:
+                    images = pdf2image.convert_from_bytes(file_bytes, poppler_path=POPPLER_PATH)
+                    ocr_pages = []
+                    for img in images:
+                        ocr_text = pytesseract.image_to_string(img, lang='vie')
+                        if ocr_text and ocr_text.strip():
+                            ocr_pages.append(ocr_text.strip())
+                    text = "\n\n--- Trang tiếp theo (OCR) ---\n\n".join(ocr_pages)
+                except Exception as e:
+                    logging.error(f"Lỗi OCR PDF {filename}: {e}")
+                    
+        # Hình ảnh (Image OCR)
+        elif content_type.startswith('image/'):
+            try:
+                img = Image.open(io.BytesIO(file_bytes))
+                text = pytesseract.image_to_string(img, lang='vie')
+            except Exception as e:
+                logging.error(f"Lỗi OCR ảnh {filename}: {e}")
+                
         else:
-            # File không hỗ trợ trích xuất text (ví dụ: ảnh)
+            # File không hỗ trợ trích xuất text
             return ""
             
     except Exception as e:

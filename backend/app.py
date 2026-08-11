@@ -132,10 +132,12 @@ async def ask_question_api(
                     thumb_b64 = create_thumbnail_base64(file_bytes)
                     if thumb_b64:
                         attachment_info["thumbnail"] = thumb_b64
-                else:
+                if not attachment_info["is_image"]:
                     # Extract text for non-image files
                     extracted_text = extract_text_from_file(file_bytes, filename, content_type)
                     if extracted_text:
+                        if len(extracted_text) > 233000:
+                            extracted_text = extracted_text[:233000] + "\n[Nội dung đã bị cắt bớt do vượt quá giới hạn 233,000 ký tự]"
                         attachment_info["extracted_text"] = extracted_text
                 
                 processed_attachments.append(attachment_info)

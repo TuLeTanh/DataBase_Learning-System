@@ -86,21 +86,31 @@ run_query(s1, "INSERT INTO TestRollback VALUES (1)")
 # In python's sqlite3 driver, `execute()` usually auto starts a transaction. Let's do an INSERT with a recursive CTE.
 res = run_query(s1, """
 INSERT INTO TestRollback 
-WITH RECURSIVE cnt(x) AS (
-    SELECT 1
-    UNION ALL
-    SELECT x+1 FROM cnt
-)
-SELECT x FROM cnt;
+SELECT count(*) FROM (
+    WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM c LIMIT 500)
+    SELECT c1.x FROM c c1, c c2, c c3
+);
 """)
 # It can hit size limit or timeout
-if "timed out" in str(res) or "database or disk is full" in str(res):
-    print("--- Test: Timeout/Size block on massive INSERT ---\nResult: Blocked\n[PASS]\n")
+db_size = os.path.getsize(os.path.join(SANDBOX_DIR, f"{s1}.db"))
+if "timed out" in str(res):
+    print("--- Test: Timeout-only test (CPU-bound, no disk limit hit) ---")
+    print("Result: Blocked by Timeout (> 2s)")
+    print(f"Sandbox DB size at block: {db_size} bytes (limit is 5MB)")
+    print("[PASS]\n")
 else:
-    print(f"--- Test: Timeout/Size block on massive INSERT ---\nResult: {res}\n[FAIL]\n")
+    print("--- Test: Timeout-only test (CPU-bound, no disk limit hit) ---")
+    print(f"Result: {res}")
+    print("[FAIL]\n")
+
 # Verify rollback - it should only have 1 row
 res = run_query(s1, "SELECT COUNT(*) as c FROM TestRollback")
-print_result("Rollback on timeout check", res, "{'c': 1}")
+print("--- Test: Rollback on timeout check ---")
+print(f"Result: {res} (Expected: 1 row, meaning 0 new rows inserted)")
+if res == [{'c': 1}]:
+    print("[PASS]\n")
+else:
+    print("[FAIL]\n")
 
 # 8. Lifecycle cleanup check
 s3 = create_session()

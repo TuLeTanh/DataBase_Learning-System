@@ -1,0 +1,48 @@
+=== KẾT QUẢ REGRESSION TEST QUA UI ===
+
+Q: Làm sao để cài đặt MySQL trên Windows
+A: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+Status: PASS
+
+Q: MongoDB lưu trữ dữ liệu dưới dạng nào?
+A: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+Status: PASS
+
+Q: Làm thế nào để sử dụng phpMyAdmin quản lý database?
+A: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+Status: PASS
+
+Q: Cấu hình Replica Set trong cơ sở dữ liệu phân tán
+A: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+Status: PASS
+
+Q: Giải thích khái niệm Eventual Consistency trong NoSQL
+A: Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+Status: PASS
+
+Q: Cách tối ưu hóa index trên PostgreSQL
+A: Tài liệu môn học hiện tại đề cập đến các khái niệm liên quan đến tối ưu hóa index và materialized views, cũng như các công cụ tự động hóa việc chọn index và duy trì chúng. Dưới đây là một số hướng dẫn và giải thích dựa trên các đoạn trích:
+
+1. **Tối ưu hóa index trên PostgreSQL:**
+   - Các đoạn trích đề cập đến việc chọn index tự động và đánh giá lợi ích của từng index. Quá trình này bao gồm việc xét đến các truy vấn và thay đổi điển hình trên cơ sở dữ liệu, và đánh giá các lợi ích và chi phí của các index khác nhau.
+   - PostgreSQL có thể cung cấp các công cụ hoặc tính năng để tự động chọn index phù hợp. Bạn có thể tham khảo tài liệu hoặc hướng dẫn của PostgreSQL để tìm hiểu thêm về các tính năng này.
+   - Ngoài ra, tài liệu đề cập đến việc sử dụng materialized views để cải thiện hiệu suất. Materialized views có thể được sử dụng để lưu trữ kết quả của các truy vấn phức tạp, cho phép truy vấn nhanh hơn mà không cần thực hiện lại các tính toán.
+   - Để tối ưu hóa index trên PostgreSQL, bạn có thể xem xét các bước sau:
+     - Xác định các truy vấn và thao tác thường được thực hiện trên cơ sở dữ liệu của bạn.
+     - Đánh giá lợi ích của việc tạo index cho các thuộc tính được truy vấn thường xuyên.
+     - Sử dụng các công cụ hoặc tính năng tự động chọn index của PostgreSQL để chọn index phù hợp.
+     - Duy trì và cập nhật materialized views khi cơ sở dữ liệu thay đổi, để đảm bảo chúng vẫn phản ánh chính xác dữ liệu.
+
+2. **Ví dụ về tối ưu hóa index:**
+   - Trong đoạn trích về mối quan hệ "Ships", có một số giả định và xác suất về các thao tác được thực hiện trên cơ sở dữ liệu.
+   - Bạn có thể tính toán chi phí của các thao tác này và đánh giá lợi ích của việc tạo index cho các thuộc tính "name", "class", và "launched".
+   - Ví dụ, nếu xác suất của các thao tác truy vấn theo tên là cao, thì việc tạo index cho thuộc tính "name" có thể mang lại lợi ích đáng kể trong việc cải thiện hiệu suất truy vấn.
+
+3. **Hướng dẫn cụ thể:**
+   - Để tối ưu hóa index trên PostgreSQL, bạn có thể tham khảo tài liệu chính thức của PostgreSQL hoặc các tài nguyên trực tuyến khác. Họ có thể cung cấp hướng dẫn chi tiết về cách tạo, quản lý và tối ưu hóa index.
+   - Ngoài ra, bạn có thể tham khảo các công cụ hoặc tính năng tự động hóa như AutoAdmin hoặc SMART, được đề cập trong tài liệu, để giúp chọn và quản lý index một cách hiệu quả.
+
+Hãy nhớ rằng, việc tối ưu hóa index là một quá trình liên tục và phụ thuộc vào các đặc điểm cụ thể của cơ sở dữ liệu và các truy vấn của bạn. Do đó, việc đánh giá và điều chỉnh index thường xuyên là cần thiết để đảm bảo hiệu suất tối ưu.
+Status: PASS
+
+ALL REGRESSION TESTS PASSED.
