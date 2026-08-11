@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import vi from './locales/vi.json'
 import en from './locales/en.json'
+import SqlSandbox from './SqlSandbox';
 
 const locales = { vi, en };
 
@@ -9,6 +10,7 @@ const API_BASE_URL = "http://127.0.0.1:8000";
 function App() {
   const [sessions, setSessions] = useState([]);
   const [activeSessionId, setActiveSessionId] = useState(null);
+  const [isSandboxMode, setIsSandboxMode] = useState(false);
 
   // Settings state
   const [uiLang, setUiLang] = useState(() => localStorage.getItem('uiLang') || 'vi');
@@ -58,7 +60,7 @@ function App() {
   };
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isSandboxMode]);
 
   // Initial load
   useEffect(() => {
@@ -279,12 +281,12 @@ function App() {
     <div className="flex h-dvh bg-mesh overflow-hidden font-sans text-slate-100">
       
       {/* Sidebar */}
-      <div className={`${isSidebarExpanded ? 'w-[280px]' : 'w-20'} bg-white/5 backdrop-blur-3xl border-r border-white/10 flex flex-col z-20 transition-all duration-300 ease-out shrink-0 relative shadow-[4px_0_24px_rgba(0,0,0,0.5)]`}>
+      <div className={`${isSidebarExpanded ? 'w-[280px]' : 'w-20'} bg-white/5 backdrop-blur-3xl border-r border-white/10 flex flex-col z-20 transition-[width] transition-colors duration-300 ease-out shrink-0 relative shadow-[4px_0_24px_rgba(0,0,0,0.5)]`}>
         <div className={`p-5 border-b border-white/10 flex items-center ${isSidebarExpanded ? 'justify-between' : 'justify-center'}`}>
           {isSidebarExpanded && <h2 className="font-semibold text-lg whitespace-nowrap overflow-hidden text-white/90 tracking-wide">{t("app.title")}</h2>}
           <button 
             onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-            className="text-white/60 hover:text-white hover:bg-white/10 transition-all p-1.5 rounded-xl hover:scale-105 active:scale-95 focus-ring"
+            className="text-white/60 hover:text-white hover:bg-white/10 transition p-1.5 rounded-xl hover:scale-105 active:scale-95 focus-ring"
             title={isSidebarExpanded ? t("sidebar.collapse") : t("sidebar.expand")}
           >
             {isSidebarExpanded ? (
@@ -298,7 +300,7 @@ function App() {
         <div className="p-4 flex justify-center">
           <button 
             onClick={createNewSession}
-            className={`flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all font-medium shadow-sm border border-white/5 hover:scale-[1.02] active:scale-[0.98] focus-ring group ${isSidebarExpanded ? 'w-full py-3 px-4' : 'w-12 h-12 p-3 rounded-2xl'}`}
+            className={`flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition font-medium shadow-sm border border-white/5 hover:scale-[1.02] active:scale-[0.98] focus-ring group ${isSidebarExpanded ? 'w-full py-3 px-4' : 'w-12 h-12 p-3 rounded-2xl'}`}
             title={t("sidebar.newChat")}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-accent-400 group-hover:text-accent-300 transition-colors"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -312,7 +314,7 @@ function App() {
               <div 
                 key={session.id}
                 onClick={() => selectSession(session.id)}
-                className={`group animate-fade-up flex items-center justify-between px-3 py-3 rounded-xl cursor-pointer transition-all duration-300 focus-ring ${
+                className={`group animate-fade-up flex items-center justify-between px-3 py-3 rounded-xl cursor-pointer transition duration-300 focus-ring ${
                   activeSessionId === session.id 
                     ? 'bg-accent-600/20 text-accent-100 border border-accent-500/30' 
                     : 'text-white/60 border border-transparent hover:bg-white/5 hover:text-white hover:border-white/10 hover:scale-[0.99]'
@@ -325,7 +327,7 @@ function App() {
                 </div>
                 <button 
                   onClick={(e) => deleteSession(session.id, e)}
-                  className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-red-400 transition-all shrink-0 p-1 rounded-md hover:bg-white/10"
+                  className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-red-400 transition shrink-0 p-1 rounded-md hover:bg-white/10"
                   title={t("sidebar.deleteChat")}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -336,7 +338,7 @@ function App() {
             <div className="flex flex-col items-center gap-4 mt-2 animate-fade-up">
               <button 
                 onClick={() => setIsSidebarExpanded(true)}
-                className="text-white/60 hover:text-white transition-all p-3 rounded-xl hover:bg-white/10 hover:scale-[1.05] active:scale-[0.95]"
+                className="text-white/60 hover:text-white transition p-3 rounded-xl hover:bg-white/10 hover:scale-[1.05] active:scale-[0.95]"
                 title={t("sidebar.chatList")}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
@@ -351,7 +353,7 @@ function App() {
         <div className="mt-auto px-4 py-3 border-t border-white/10 flex flex-col gap-2 shrink-0">
           <button 
             onClick={() => setIsSettingsOpen(true)}
-            className={`flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/10 transition-all focus-ring group ${!isSidebarExpanded ? 'justify-center' : ''}`}
+            className={`flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/10 transition focus-ring group ${!isSidebarExpanded ? 'justify-center' : ''}`}
             title={!isSidebarExpanded ? t("settings.title") : ""}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/60 group-hover:text-white transition-colors shrink-0">
@@ -362,7 +364,7 @@ function App() {
           </button>
           
           {/* Avatar Dummy */}
-          <div className={`flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-all cursor-pointer ${!isSidebarExpanded ? 'justify-center' : ''}`}>
+          <div className={`flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/5 transition cursor-pointer ${!isSidebarExpanded ? 'justify-center' : ''}`}>
              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accent-500 to-purple-500 flex items-center justify-center shrink-0 border border-white/20">
                <span className="text-sm font-bold text-white shadow-sm">U</span>
              </div>
@@ -371,13 +373,27 @@ function App() {
         </div>
       </div>
 
-      {/* Main Chat Area */}
+      {/* Main Area */}
       <div className="flex-1 flex flex-col h-dvh min-w-0 relative">
         
-        {/* Header (Backdrop over the chat area) */}
+        {/* Header */}
         <header className="absolute top-0 inset-x-0 bg-[#020617]/60 backdrop-blur-xl border-b border-white/5 py-4 px-6 md:px-8 flex justify-between items-center z-10 shrink-0">
-          <div>
+          <div className="flex items-center gap-4">
             <h1 className="text-xl font-medium tracking-wide text-white/90">{t("app.headerTitle")}</h1>
+            <div className="flex items-center bg-white/5 rounded-lg p-1 border border-white/10">
+              <button
+                onClick={() => setIsSandboxMode(false)}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${!isSandboxMode ? 'bg-accent-600 text-white shadow-sm' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+              >
+                Chat
+              </button>
+              <button
+                onClick={() => setIsSandboxMode(true)}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${isSandboxMode ? 'bg-accent-600 text-white shadow-sm' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
+              >
+                SQL Sandbox
+              </button>
+            </div>
           </div>
           <div className="flex items-center gap-3 text-sm font-medium">
             {serverStatus === 'checking...' && <span className="text-yellow-400/80 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-400/80 animate-pulse"></div>{t("server.checking")}</span>}
@@ -386,73 +402,80 @@ function App() {
           </div>
         </header>
 
-        {/* Chat History */}
-        <main className="flex-1 overflow-y-auto px-4 md:px-12 lg:px-24 pt-24 pb-4 flex flex-col gap-8 scrollbar-thin scroll-smooth relative z-0">
-          {messages.length === 0 && !isLoading && (
-            <div className="m-auto flex flex-col items-center justify-center animate-fade-up text-center max-w-md">
-              <div className="w-20 h-20 mb-6 bg-gradient-to-tr from-accent-600/30 to-purple-500/30 rounded-3xl flex items-center justify-center border border-white/10 shadow-[0_0_40px_rgba(37,99,235,0.2)]">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent-400"><path d="M12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2Z"></path><path d="m9 12 2 2 4-4"></path></svg>
-              </div>
-              <h3 className="text-2xl font-medium text-white mb-2">{t("chat.emptyTitle")}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{t("chat.emptyDesc")}</p>
-            </div>
-          )}
+        {isSandboxMode ? (
+          <div className="flex-1 pt-20">
+            <SqlSandbox activeSessionId={activeSessionId} t={t} />
+          </div>
+        ) : (
+          <>
+            {/* Chat History */}
+            <main className="flex-1 overflow-y-auto px-4 md:px-12 lg:px-24 pt-24 pb-4 flex flex-col gap-8 scrollbar-thin scroll-smooth relative z-0">
+              {messages.length === 0 && !isLoading && (
+                <div className="m-auto flex flex-col items-center justify-center animate-fade-up text-center max-w-md">
+                  <div className="w-20 h-20 mb-6 bg-gradient-to-tr from-accent-600/30 to-purple-500/30 rounded-3xl flex items-center justify-center border border-white/10 shadow-[0_0_40px_rgba(37,99,235,0.2)]">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent-400"><path d="M12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                  </div>
+                  <h3 className="text-2xl font-medium text-white mb-2">{t("chat.emptyTitle")}</h3>
+                  <p className="text-white/50 text-sm leading-relaxed">{t("chat.emptyDesc")}</p>
+                </div>
+              )}
 
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-up group`}>
-              <div className={`p-[1px] rounded-[28px] max-w-[85%] md:max-w-[75%] shadow-lg ${
-                msg.role === 'user' 
-                  ? 'bg-gradient-to-b from-accent-500/50 to-accent-600/20 rounded-br-sm' 
-                  : 'bg-gradient-to-b from-white/10 to-transparent rounded-bl-sm'
-              }`}>
-                <div className={`whitespace-pre-wrap text-[15px] leading-relaxed backdrop-blur-md px-5 py-4 ${
-                  msg.role === 'user' 
-                    ? 'bg-accent-600/80 text-white border border-accent-500/30 rounded-[27px] rounded-br-[3px]' 
-                    : 'bg-white/5 text-slate-200 border border-white/5 rounded-[27px] rounded-bl-[3px]'
-                }`}>
-                  {msg.attachments && msg.attachments.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {msg.attachments.map((att, i) => (
-                        <div key={i} className="p-[1px] bg-gradient-to-b from-white/20 to-white/5 rounded-xl">
-                          <div className="relative rounded-[11px] overflow-hidden bg-black/40 border border-white/5 flex items-center justify-center">
-                            {att.is_image ? (
-                              <img src={att.thumbnail || att.tempUrl} alt={att.filename} className="w-16 h-16 object-cover" title={att.filename} />
-                            ) : (
-                              <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium max-w-[150px] text-white/80" title={att.filename}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-white/50"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                                <span className="truncate">{att.filename}</span>
+              {messages.map((msg, idx) => (
+                <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-up group`}>
+                  <div className={`p-[1px] rounded-[28px] max-w-[85%] md:max-w-[75%] shadow-lg ${
+                    msg.role === 'user' 
+                      ? 'bg-gradient-to-b from-accent-500/50 to-accent-600/20 rounded-br-sm' 
+                      : 'bg-gradient-to-b from-white/10 to-transparent rounded-bl-sm'
+                  }`}>
+                    <div className={`whitespace-pre-wrap text-[15px] leading-relaxed px-5 py-4 ${
+                      msg.role === 'user' 
+                        ? 'bg-accent-600/80 text-white border border-accent-500/30 rounded-[27px] rounded-br-[3px]' 
+                        : 'bg-white/5 text-slate-200 border border-white/5 rounded-[27px] rounded-bl-[3px]'
+                    }`}>
+                      {msg.attachments && msg.attachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {msg.attachments.map((att, i) => (
+                            <div key={i} className="p-[1px] bg-gradient-to-b from-white/20 to-white/5 rounded-xl">
+                              <div className="relative rounded-[11px] overflow-hidden bg-black/40 border border-white/5 flex items-center justify-center">
+                                {att.is_image ? (
+                                  <img src={att.thumbnail || att.tempUrl} alt={att.filename} className="w-16 h-16 object-cover" title={att.filename} />
+                                ) : (
+                                  <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium max-w-[150px] text-white/80" title={att.filename}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-white/50"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                    <span className="truncate">{att.filename}</span>
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      )}
+                      {msg.text}
                     </div>
-                  )}
-                  {msg.text}
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-          
-          {isLoading && (
-            <div className="flex justify-start animate-fade-up">
-              <div className="p-[1px] rounded-[28px] rounded-bl-sm bg-gradient-to-b from-white/10 to-transparent w-full max-w-[85%] md:max-w-[75%]">
-                <div className="bg-white/5 backdrop-blur-md border border-white/5 rounded-[27px] rounded-bl-[3px] p-5 flex flex-col gap-3">
-                  <div className="h-3 bg-white/10 rounded-full w-3/4 animate-skeleton"></div>
-                  <div className="h-3 bg-white/10 rounded-full w-full animate-skeleton" style={{animationDelay: '200ms'}}></div>
-                  <div className="h-3 bg-white/10 rounded-full w-5/6 animate-skeleton" style={{animationDelay: '400ms'}}></div>
+              ))}
+              
+              {isLoading && (
+                <div className="flex justify-start animate-fade-up">
+                  <div className="p-[1px] rounded-[28px] rounded-bl-sm bg-gradient-to-b from-white/10 to-transparent w-full max-w-[85%] md:max-w-[75%]">
+                    <div className="bg-white/5 backdrop-blur-md border border-white/5 rounded-[27px] rounded-bl-[3px] p-5 flex flex-col gap-3">
+                      <div className="h-3 bg-white/10 rounded-full w-3/4 animate-skeleton"></div>
+                      <div className="h-3 bg-white/10 rounded-full w-full animate-skeleton" style={{animationDelay: '200ms'}}></div>
+                      <div className="h-3 bg-white/10 rounded-full w-5/6 animate-skeleton" style={{animationDelay: '400ms'}}></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} className="h-1" />
-        </main>
+              )}
+              <div ref={messagesEndRef} className="h-1" />
+            </main>
 
-        {/* Input Area */}
-        <footer className="bg-transparent p-4 md:p-6 shrink-0 relative z-10 w-full flex flex-col items-center">
+            {/* Input Area */}
+            <footer className="bg-transparent p-4 md:p-6 shrink-0 relative z-10 w-full flex flex-col items-center">
+
           <div className="w-full max-w-4xl p-[1px] bg-gradient-to-b from-white/15 to-white/5 rounded-[32px] shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
             <div 
-              className="w-full bg-[#0B101E]/80 backdrop-blur-2xl border border-white/10 rounded-[31px] transition-all focus-within:bg-[#0B101E]/95 focus-within:border-white/20 focus-within:ring-4 focus-within:ring-accent-500/10 cursor-text flex flex-col"
+              className="w-full bg-[#0B101E]/80 backdrop-blur-2xl border border-white/10 rounded-[31px] transition focus-within:bg-[#0B101E]/95 focus-within:border-white/20 focus-within:ring-4 focus-within:ring-accent-500/10 cursor-text flex flex-col"
               onClick={() => document.getElementById('chat-input').focus()}
               onPaste={handlePaste}
             >
@@ -473,7 +496,7 @@ function App() {
                         <span className="text-xs font-medium text-white/90 max-w-[120px] truncate tabular-nums">{file.name}</span>
                         <button 
                           onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all focus-ring shadow-sm hover:scale-110 active:scale-95"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition focus-ring shadow-sm hover:scale-110 active:scale-95"
                           title={t("file.delete")}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -502,7 +525,7 @@ function App() {
                 <div className="relative">
                   <button 
                     onClick={(e) => { e.stopPropagation(); setIsAttachmentMenuOpen(!isAttachmentMenuOpen); }}
-                    className="w-10 h-10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all shrink-0 hover:scale-[1.05] active:scale-[0.95] focus-ring"
+                    className="w-10 h-10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 rounded-full transition shrink-0 hover:scale-[1.05] active:scale-[0.95] focus-ring"
                     title={t("input.attach")}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -533,7 +556,7 @@ function App() {
                 <button 
                   onClick={(e) => { e.stopPropagation(); handleSend(); }}
                   disabled={isLoading || (!input.trim() && selectedFiles.length === 0) || serverStatus !== 'ok'}
-                  className="h-10 pl-4 pr-1 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:opacity-50 text-white rounded-full flex items-center gap-2 transition-all hover:scale-105 active:scale-95 focus-ring group"
+                  className="h-10 pl-4 pr-1 bg-white/10 hover:bg-white/20 disabled:bg-white/5 disabled:opacity-50 text-white rounded-full flex items-center gap-2 transition hover:scale-105 active:scale-95 focus-ring group"
                   title={t("input.sendTooltip")}
                 >
                   <span className="text-sm font-medium tracking-wide">{t("input.send")}</span>
@@ -548,6 +571,8 @@ function App() {
              Trợ lý có thể mắc sai lầm. Hãy kiểm tra lại thông tin quan trọng.
           </div>
         </footer>
+          </>
+        )}
       </div>
 
       {isSettingsOpen && (
@@ -559,7 +584,7 @@ function App() {
                 <h2 className="text-xl font-semibold text-white">{t("settings.title")}</h2>
                 <button 
                   onClick={() => setIsSettingsOpen(false)}
-                  className="text-white/50 hover:text-white hover:bg-white/10 p-2 rounded-xl transition-all active:scale-95 focus-ring"
+                  className="text-white/50 hover:text-white hover:bg-white/10 p-2 rounded-xl transition active:scale-95 focus-ring"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
@@ -573,7 +598,7 @@ function App() {
                     <button
                       key={c}
                       onClick={() => setAccentColor(c)}
-                      className={`w-10 h-10 rounded-full transition-all flex items-center justify-center focus-ring ${c === 'blue' ? 'bg-blue-500' : c === 'purple' ? 'bg-purple-500' : 'bg-emerald-500'} ${accentColor === c ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0B101E] scale-110' : 'opacity-70 hover:opacity-100 hover:scale-105'}`}
+                      className={`w-10 h-10 rounded-full transition flex items-center justify-center focus-ring ${c === 'blue' ? 'bg-blue-500' : c === 'purple' ? 'bg-purple-500' : 'bg-emerald-500'} ${accentColor === c ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0B101E] scale-110' : 'opacity-70 hover:opacity-100 hover:scale-105'}`}
                     >
                       {accentColor === c && <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                     </button>
@@ -602,7 +627,7 @@ function App() {
                     <button
                       key={s}
                       onClick={() => setFontSize(s)}
-                      className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all focus-ring ${fontSize === s ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white/80'}`}
+                      className={`flex-1 py-2 text-sm font-medium rounded-lg transition focus-ring ${fontSize === s ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white/80'}`}
                     >
                       {s === 'small' ? t("settings.fontSizeSmall") : s === 'medium' ? t("settings.fontSizeMedium") : t("settings.fontSizeLarge")}
                     </button>
@@ -630,7 +655,7 @@ function App() {
                       setMessages([{ role: 'bot', text: 'Chào bạn, mình là Trợ lý học Cơ sở dữ liệu. Mình có thể giúp gì cho bạn hôm nay?' }]);
                     }
                   }}
-                  className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/30 rounded-xl transition-all font-medium focus-ring"
+                  className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/30 rounded-xl transition font-medium focus-ring"
                 >
                   {t("settings.deleteAll")}
                 </button>

@@ -1,0 +1,4 @@
+
+[TEST FILE: test.docx]
+User: Điểm số Gamma là bao nhiêu?
+Bot: Điểm số Gamma là 0.95.

@@ -1,0 +1,1 @@
+Đây là file TXT test. Trọng số Alpha là 0.75.

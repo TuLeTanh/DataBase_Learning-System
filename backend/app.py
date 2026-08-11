@@ -8,9 +8,24 @@ from pydantic import BaseModel
 from chatbot_pipeline import answer_question
 import logging
 from backend import db
+import backend.sandbox as sandbox
 from backend.file_extractor import extract_text_from_file
+import asyncio
 
-app = FastAPI(title="RAG CSDL Chatbot API")
+async def cleanup_task():
+    while True:
+        sandbox.cleanup_stale_sandboxes(max_age_days=1)
+        await asyncio.sleep(3600 * 12) # Run every 12 hours
+
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(cleanup_task())
+    yield
+    task.cancel()
+
+app = FastAPI(title="RAG CSDL Chatbot API", lifespan=lifespan)
 
 # Setup CORS
 app.add_middleware(
@@ -46,7 +61,21 @@ def get_session(session_id: str):
 @app.delete("/api/sessions/{session_id}")
 def delete_session(session_id: str):
     db.delete_session(session_id)
+    sandbox.delete_sandbox_db(session_id)
     return {"status": "ok"}
+
+class SandboxQuery(BaseModel):
+    session_id: str
+    query: str
+
+@app.post("/api/sandbox/query")
+def execute_sandbox_query(req: SandboxQuery):
+    if not sandbox.is_valid_session_id(req.session_id):
+        raise HTTPException(status_code=400, detail="Invalid session ID")
+    success, result = sandbox.execute_sandbox_query(req.session_id, req.query)
+    if not success:
+        raise HTTPException(status_code=400, detail=result)
+    return {"status": "ok", "result": result}
 
 def create_thumbnail_base64(file_bytes: bytes) -> str:
     try:

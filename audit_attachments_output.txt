@@ -1,0 +1,16 @@
+
+[TEST FILE: test.txt]
+User: Trọng số Alpha là bao nhiêu?
+Bot: Trọng số Alpha là 0.75.
+
+[TEST FILE: test.md]
+User: Trọng số Beta là bao nhiêu?
+Bot: Trọng số Beta là 0.85.
+
+[TEST FILE: empty.pdf]
+User: File này nói về gì?
+Bot: Xin lỗi, tôi không thể trích xuất được nội dung văn bản từ file [empty.pdf]. Tài liệu môn học hiện tại không đề cập đến vấn đề này.
+
+[TEST FILE: test.docx]
+User: Trong file có gì?
+Bot: Xin lỗi, tôi không thể trích xuất được nội dung văn bản từ file "test.docx". Tài liệu môn học hiện tại không đề cập đến vấn đề này.
