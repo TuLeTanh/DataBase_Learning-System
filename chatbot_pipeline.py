@@ -75,6 +75,16 @@ def format_history(raw_history):
     for msg in raw_history:
         role = "assistant" if msg.get("role") in ["bot", "assistant"] else "user"
         content = msg.get("text") or msg.get("content") or ""
+        
+        atts = msg.get("attachments")
+        if atts and isinstance(atts, list):
+            extracted = []
+            for att in atts:
+                if "extracted_text" in att and att["extracted_text"]:
+                    extracted.append(f"--- Nội dung file đính kèm: {att['filename']} ---\n{att['extracted_text']}")
+            if extracted:
+                content += "\n\n(Hệ thống: Nội dung file đính kèm trong tin nhắn này:\n" + "\n\n".join(extracted) + ")"
+                
         formatted.append({"role": role, "content": content})
     return formatted
 
@@ -165,7 +175,7 @@ Tuyệt đối giữ thái độ lịch sự, ngắn gọn và luôn mang địn
             response = client.chat(
                 model="command-r-08-2024",
                 messages=messages,
-                max_tokens=1500
+                max_tokens=4000
             )
             return response.message.content[0].text, False, ""
         except Exception as e:
@@ -178,7 +188,7 @@ Tuyệt đối giữ thái độ lịch sự, ngắn gọn và luôn mang địn
             if attachment_text:
                 messages = [{"role": "user", "content": f"Câu hỏi: {query} {attachment_text}\n\nHướng dẫn bổ sung: Câu hỏi này nằm ngoài phạm vi tài liệu hiện tại, hãy nói thêm rằng 'Tài liệu môn học hiện tại không đề cập đến vấn đề này.'"}]
                 try:
-                    response = client.chat(model="command-r-08-2024", messages=messages, max_tokens=1500)
+                    response = client.chat(model="command-r-08-2024", messages=messages, max_tokens=4000)
                     return response.message.content[0].text, no_relevant_context, ""
                 except Exception as e:
                     pass
@@ -191,9 +201,19 @@ Tuyệt đối giữ thái độ lịch sự, ngắn gọn và luôn mang địn
         # Tái tạo prompt với attachment_text
         context_text = "\n\n".join([f"--- Nguồn: {r['chunk']['source']} ---\n{r['chunk']['text']}" for r in results])
         
+        has_history_extracted_text = False
+        if history:
+            for msg in history:
+                atts = msg.get("attachments")
+                if atts and isinstance(atts, list):
+                    for att in atts:
+                        if att.get("extracted_text"):
+                            has_history_extracted_text = True
+                            break
+
         rule_1 = '1. Đọc kỹ các đoạn trích trên. Nếu các đoạn trích hoàn toàn không liên quan đến chủ đề câu hỏi (khác khái niệm, khác lĩnh vực, ví dụ hỏi về NoSQL/MongoDB nhưng đoạn trích chỉ nói về SQL quan hệ), hãy trả lời ngay ở đầu câu: "Tài liệu môn học hiện tại không đề cập đến vấn đề này." và DỪNG LẠI, tuyệt đối không giải thích thêm hay cung cấp kiến thức ngoài tài liệu. Nếu đoạn trích chứa đúng khái niệm cốt lõi được hỏi (không chỉ liên quan mơ hồ), bạn được phép diễn giải, tổng hợp, hoặc tạo ví dụ minh hoạ dựa trên chính nội dung trong đoạn trích đó — không được thêm thông tin, ví dụ, hay khái niệm nào không xuất phát từ đoạn trích. Nếu đoạn trích không đủ để tạo ví dụ cụ thể, hãy nói rõ giới hạn đó thay vì tự bịa thêm.'
-        if has_extracted_text:
-            rule_1 = '1. Đọc kỹ các đoạn trích và nội dung file đính kèm. Bạn ĐƯỢC PHÉP dựa vào nội dung file đính kèm để trả lời câu hỏi kể cả khi tài liệu môn học không đề cập.'
+        if has_extracted_text or has_history_extracted_text:
+            rule_1 = '1. Đọc kỹ các đoạn trích và nội dung file đính kèm. Bạn ĐƯỢC PHÉP dựa vào nội dung file đính kèm (bao gồm cả các file được gửi trong những tin nhắn trước) để trả lời câu hỏi kể cả khi tài liệu môn học không đề cập.'
 
         prompt = f"""Bạn là trợ lý học tập môn Cơ sở dữ liệu. Dưới đây là các đoạn trích từ tài liệu môn học:
 
@@ -215,7 +235,7 @@ Hướng dẫn:
         response = client.chat(
             model="command-r-08-2024",
             messages=messages,
-            max_tokens=1500
+            max_tokens=4000
         )
         answer_text = response.message.content[0].text
         return answer_text, no_relevant_context, prompt

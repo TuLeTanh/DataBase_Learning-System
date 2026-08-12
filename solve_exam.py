@@ -4,12 +4,12 @@ sys.stdout.reconfigure(encoding='utf-8')
 from playwright.async_api import async_playwright
 import os
 
-EXAM_FILE = r"D:\All Code\New folder\test data\2025_2026_HK1_DE THI GIUA KY_CSDL_DE01.pdf"
+EXAM_FILE = os.path.join(os.path.dirname(__file__), "data", "2025_2026_HK1_DE THI GIUA KY_CSDL_DE01.pdf")
 OUTPUT_FILE = "giai-de-thi-01.md"
 
 queries = [
     "Dựa vào nội dung file đính kèm, hãy giải Câu 1 (Vẽ ERD). Nếu không vẽ được sơ đồ, hãy liệt kê chi tiết các thực thể, thuộc tính và mối kết hợp.",
-    "Bây giờ hãy viết SQL cụ thể cho từng câu 2.1.a, 2.1.b, 2.1.c và viết biểu thức đại số quan hệ cụ thể cho các câu từ 2.2.a đến 2.2.f theo đúng schema đã cho trong file đính kèm (KHACHHANG, HOPDONG, LSDONGTIEN, CHITIETHD, YEUCAUBAOHIEM). Phải dùng đúng tên bảng và tên cột thật trong đề thi (ví dụ: phương thức 'Chuyển khoản', năm 2025, mã 'LBH202'...), tuyệt đối không dùng placeholder trừu tượng kiểu table1, column1.",
+    "Bây giờ hãy viết SQL cụ thể cho từng câu 2.1.a, 2.1.b, 2.1.c và viết biểu thức đại số quan hệ cụ thể cho các câu từ 2.2.a đến 2.2.f theo đúng schema đã cho trong file đính kèm (KHACHHANG, HOPDONG, LSDONGTIEN, CHITIETHD, YEUCAUBAOHIEM). Phải dùng đúng tên bảng và tên cột thật trong đề thi (ví dụ: phương thức 'Chuyển khoản', năm 2025, mã 'LBH202'...), tuyệt đối không dùng placeholder trừu tượng kiểu table1, column1.\n\nLưu ý để tránh sai sót:\n- Câu 2.2.b: Mã loại bảo hiểm là 'LBH202' (tuyệt đối không thêm dấu gạch ngang phía trước).\n- Câu 2.2.d: Bảng YEUCAUBAOHIEM và HOPDONG liên kết với nhau thông qua bảng CHITIETHD (YEUCAUBAOHIEM.MaCTHD = CHITIETHD.MaCTHD và CHITIETHD.SoHD = HOPDONG.SoHD). 'không có yêu cầu giải quyết bảo hiểm nào' nên dùng mệnh đề NOT IN hoặc NOT EXISTS. Điều kiện trạng thái 'Đã hủy' thuộc về Hợp đồng (HOPDONG.TrangThai = 'Đã hủy').",
     "Follow-up: Nếu trong bảng YEUCAUBAOHIEM (câu 2), công ty muốn bổ sung thêm trường 'NguoiDuyet' để ghi nhận nhân viên nào duyệt yêu cầu, ta nên thiết kế thêm bảng nào và thêm khóa ngoại như thế nào?"
 ]
 

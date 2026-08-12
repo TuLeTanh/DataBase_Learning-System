@@ -281,7 +281,12 @@ function App() {
     <div className="flex h-dvh bg-mesh overflow-hidden font-sans text-slate-100">
       
       {/* Sidebar */}
-      <div className={`${isSidebarExpanded ? 'w-[280px]' : 'w-20'} bg-white/5 backdrop-blur-3xl border-r border-white/10 flex flex-col z-20 transition-[width] transition-colors duration-300 ease-out shrink-0 relative shadow-[4px_0_24px_rgba(0,0,0,0.5)]`}>
+      <div className={`${isSidebarExpanded ? 'w-[280px]' : 'w-20'} flex flex-col z-20 shrink-0 relative`}>
+        {/* Visual Background with transform */}
+        <div className={`absolute top-0 left-0 h-full w-[280px] bg-white/5 backdrop-blur-3xl border-r border-white/10 shadow-[4px_0_24px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out origin-left ${isSidebarExpanded ? 'scale-x-100' : 'scale-x-[0.2857]'}`}></div>
+        
+        {/* Content wrapper */}
+        <div className="relative z-10 flex flex-col h-full w-full">
         <div className={`p-5 border-b border-white/10 flex items-center ${isSidebarExpanded ? 'justify-between' : 'justify-center'}`}>
           {isSidebarExpanded && <h2 className="font-semibold text-lg whitespace-nowrap overflow-hidden text-white/90 tracking-wide">{t("app.title")}</h2>}
           <button 
@@ -370,6 +375,7 @@ function App() {
              </div>
              {isSidebarExpanded && <span className="font-medium text-white/90 truncate">User</span>}
           </div>
+        </div>
         </div>
       </div>
 
