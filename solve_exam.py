@@ -22,7 +22,7 @@ async def solve_exam():
         await page.goto("http://localhost:5173")
         
         # Wait for app load
-        await page.wait_for_selector('text=Trực tuyến', timeout=10000)
+        await page.wait_for_selector('text=Trực tuyến', timeout=30000)
         
         # Tạo session mới
         new_session_btn = page.locator('button[title="Tạo cuộc hội thoại mới"]')
@@ -55,10 +55,10 @@ async def solve_exam():
             
             # Wait for bounce to appear and disappear
             try:
-                await page.wait_for_selector('.animate-bounce', timeout=2000)
+                await page.wait_for_selector('.animate-skeleton', timeout=2000)
             except:
                 pass
-            await page.wait_for_selector('.animate-bounce', state='hidden', timeout=120000)
+            await page.wait_for_selector('.animate-skeleton', state='hidden', timeout=120000)
             
             # Wait until a new message arrives
             bot_response = ""
