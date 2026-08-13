@@ -90,7 +90,7 @@ Bây giờ hãy viết SQL cụ thể cho từng câu 2.1.a, 2.1.b, 2.1.c và vi
 
 Lưu ý để tránh sai sót:
 - Câu 2.2.b: Mã loại bảo hiểm là 'LBH202' (tuyệt đối không thêm dấu gạch ngang phía trước).
-- Câu 2.2.d: Bảng YEUCAUBAOHIEM và HOPDONG liên kết với nhau thông qua bảng CHITIETHD (YEUCAUBAOHIEM.MaCTHD = CHITIETHD.MaCTHD và CHITIETHD.SoHD = HOPDONG.SoHD). 'không có yêu cầu giải quyết bảo hiểm nào' nên dùng mệnh đề NOT IN hoặc NOT EXISTS. Điều kiện trạng thái 'Đã hủy' thuộc về Hợp đồng (HOPDONG.TrangThai = 'Đã hủy').
+- Câu 2.2.d: Bảng YEUCAUBAOHIEM và HOPDONG liên kết với nhau thông qua bảng CHITIETHD (YEUCAUBAOHIEM.MaCTHD = CHITIETHD.MaCTHD và CHITIETHD.SoHD = HOPDONG.SoHD). 'không có yêu cầu giải quyết bảo hiểm nào' nên dùng mệnh đề NOT IN hoặc NOT EXISTS. Điều kiện trạng thái 'Đã hủy' thuộc về Yêu cầu bảo hiểm (YEUCAUBAOHIEM.TrangThai = 'Đã hủy').
 
 **BOT:**
 Câu 2.1.a: Tạo ràng buộc cho thuộc tính trạng thái của yêu cầu bảo hiểm chỉ nhận các giá trị: “Đang xét duyệt”, “Đã chi trả”, “Đã từ chối”, “Đã hủy”.
@@ -153,17 +153,14 @@ Câu 2.2.d: Liệt kê số hợp đồng, mã và họ tên khách hàng đại
 SELECT HOPDONG.SoHD, KHACHHANG.MaKH, KHACHHANG.HoTen
 FROM HOPDONG
 JOIN KHACHHANG ON HOPDONG.MaKHDaiDien = KHACHHANG.MaKH
-WHERE HOPDONG.TrangThai = 'Đã hủy'
-  AND NOT EXISTS (
-    SELECT 1
-    FROM YEUCAUBAOHIEM
-    WHERE YEUCAUBAOHIEM.MaCTHD IN (
-      SELECT CHITIETHD.MaCTHD
-      FROM CHITIETHD
-      WHERE CHITIETHD.SoHD = HOPDONG.SoHD
-    )
-    AND NgYeuCau BETWEEN '2025-01-01' AND '2025-12-31'
-  );
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM YEUCAUBAOHIEM
+  JOIN CHITIETHD ON YEUCAUBAOHIEM.MaCTHD = CHITIETHD.MaCTHD
+  WHERE CHITIETHD.SoHD = HOPDONG.SoHD
+    AND YEUCAUBAOHIEM.TrangThai = 'Đã hủy'
+    AND YEUCAUBAOHIEM.NgYeuCau BETWEEN '2025-01-01' AND '2025-12-31'
+);
 ```
 
 Câu 2.2.e: Tìm số hợp đồng có lịch sử đóng tiền trong năm 2025 bằng phương thức 'Chuyển khoản' cho tất cả các loại bảo hiểm có kỳ thanh toán là “Hàng năm”.
